@@ -1,6 +1,12 @@
 {
-  "version": "1.2",
+  "version": "1.3",
   "changelog": [
+    {
+      "version": "1.3",
+      "date": "2026-07-15",
+      "change": "Standardized symptom labels: 12 symptom ids (fever, chills, sore_throat, swollen_lymph_nodes, runny_nose, sneezing, low_fever, nausea, dizziness_standing, itchy_eyes_nose, mucus_cough, recent_cold) were shared across multiple conditions with inconsistent display text for the same id. Unified each to one canonical label (shorter/simpler in most cases; 'Fever over 100.4°F' kept for fever as the more informative option). Ids, weights, and scoring untouched — labels only.",
+      "evidence": "Caught by a new automated test asserting every symptom id resolves to a single label in the catalog. Not a scoring or safety issue — the intake picker only ever showed the first-seen label per id (getSymptomCatalog is first-label-wins), so some conditions' own labels were previously unreachable from the picker."
+    },
     {
       "version": "1.2",
       "date": "2026-07-15",
@@ -164,7 +170,7 @@
         { "id": "painful_swallowing", "label": "Pain when swallowing", "weight": 3 },
         { "id": "no_cough", "label": "No cough present", "weight": 2 },
         { "id": "fever", "label": "Fever over 100.4°F", "weight": 2 },
-        { "id": "swollen_lymph_nodes", "label": "Swollen, tender neck glands", "weight": 2 },
+        { "id": "swollen_lymph_nodes", "label": "Swollen neck glands", "weight": 2 },
         { "id": "white_patches_tonsils", "label": "White patches on tonsils", "weight": 3 },
         { "id": "headache", "label": "Headache", "weight": 1 }
       ],
@@ -183,10 +189,10 @@
       "symptoms": [
         { "id": "runny_nose", "label": "Runny or stuffy nose", "weight": 3 },
         { "id": "sneezing", "label": "Sneezing", "weight": 3 },
-        { "id": "sore_throat", "label": "Mild sore throat", "weight": 2 },
+        { "id": "sore_throat", "label": "Sore throat", "weight": 2 },
         { "id": "mild_cough", "label": "Mild cough", "weight": 2 },
         { "id": "gradual_onset", "label": "Symptoms came on gradually", "weight": 2 },
-        { "id": "low_fever", "label": "Low-grade or no fever", "weight": 1 }
+        { "id": "low_fever", "label": "Low-grade fever", "weight": 1 }
       ],
       "condition_red_flags": [
         { "id": "symptoms_over_10_days", "escalate_to": "see_doctor" }
@@ -224,7 +230,7 @@
         { "id": "pain_migrating_lower_right", "label": "Pain that moved to lower right abdomen", "weight": 3 },
         { "id": "pain_worse_with_movement", "label": "Pain worse with walking, coughing, or bumps", "weight": 3 },
         { "id": "loss_of_appetite", "label": "Loss of appetite", "weight": 2 },
-        { "id": "nausea", "label": "Nausea or vomiting", "weight": 2 },
+        { "id": "nausea", "label": "Nausea", "weight": 2 },
         { "id": "low_fever", "label": "Low-grade fever", "weight": 2 },
         { "id": "abdominal_pain_general", "label": "Abdominal pain", "weight": 1 }
       ],
@@ -243,7 +249,7 @@
       "symptoms": [
         { "id": "dark_urine", "label": "Dark yellow urine or urinating less", "weight": 3 },
         { "id": "extreme_thirst", "label": "Extreme thirst", "weight": 3 },
-        { "id": "dizziness_standing", "label": "Dizziness, especially when standing", "weight": 2 },
+        { "id": "dizziness_standing", "label": "Dizziness", "weight": 2 },
         { "id": "dry_mouth", "label": "Dry mouth and lips", "weight": 2 },
         { "id": "fatigue", "label": "Fatigue", "weight": 1 },
         { "id": "headache", "label": "Headache", "weight": 1 }
@@ -366,7 +372,7 @@
       "symptoms": [
         { "id": "facial_pressure", "label": "Pressure or pain in face/forehead", "weight": 3 },
         { "id": "thick_nasal_discharge", "label": "Thick yellow or green nasal discharge", "weight": 3 },
-        { "id": "runny_nose", "label": "Stuffy or runny nose", "weight": 2 },
+        { "id": "runny_nose", "label": "Runny or stuffy nose", "weight": 2 },
         { "id": "tooth_pain_upper", "label": "Aching upper teeth", "weight": 2 },
         { "id": "reduced_smell", "label": "Reduced sense of smell", "weight": 1 },
         { "id": "headache", "label": "Headache", "weight": 1 }
@@ -385,9 +391,9 @@
       "name": "Seasonal Allergies (Allergic Rhinitis)",
       "description": "An immune overreaction to pollen, dust, or dander. Itchiness and clear discharge distinguish it from a cold.",
       "symptoms": [
-        { "id": "sneezing", "label": "Sneezing fits", "weight": 3 },
-        { "id": "itchy_eyes_nose", "label": "Itchy eyes, nose, or throat", "weight": 3 },
-        { "id": "runny_nose", "label": "Clear runny nose", "weight": 2 },
+        { "id": "sneezing", "label": "Sneezing", "weight": 3 },
+        { "id": "itchy_eyes_nose", "label": "Itchy eyes", "weight": 3 },
+        { "id": "runny_nose", "label": "Runny or stuffy nose", "weight": 2 },
         { "id": "watery_eyes", "label": "Watery eyes", "weight": 2 },
         { "id": "symptoms_with_triggers", "label": "Symptoms flare around triggers (outdoors, pets, dust)", "weight": 2 },
         { "id": "no_fever", "label": "No fever", "weight": 1 }
@@ -447,9 +453,9 @@
       "description": "An infection deep in the lungs. Sicker than a chest cold: high fever, shaking chills, and pain when breathing in.",
       "symptoms": [
         { "id": "sharp_chest_pain_breathing", "label": "Sharp chest pain when breathing deeply", "weight": 3 },
-        { "id": "mucus_cough", "label": "Cough with mucus (may be rust-colored)", "weight": 2 },
+        { "id": "mucus_cough", "label": "Cough that brings up mucus", "weight": 2 },
         { "id": "fever", "label": "Fever over 100.4°F", "weight": 2 },
-        { "id": "chills", "label": "Shaking chills", "weight": 2 },
+        { "id": "chills", "label": "Chills", "weight": 2 },
         { "id": "shortness_breath_exertion", "label": "Short of breath with activity", "weight": 2 },
         { "id": "rapid_breathing", "label": "Fast, shallow breathing", "weight": 2 },
         { "id": "fatigue", "label": "Fatigue", "weight": 1 }
@@ -472,8 +478,8 @@
         { "id": "muffled_hearing", "label": "Muffled hearing", "weight": 2 },
         { "id": "ear_fullness", "label": "Feeling of fullness in the ear", "weight": 2 },
         { "id": "ear_drainage", "label": "Fluid draining from the ear", "weight": 2 },
-        { "id": "recent_cold", "label": "Recent cold or congestion", "weight": 1 },
-        { "id": "fever", "label": "Fever", "weight": 1 }
+        { "id": "recent_cold", "label": "Started after a cold", "weight": 1 },
+        { "id": "fever", "label": "Fever over 100.4°F", "weight": 1 }
       ],
       "condition_red_flags": [
         { "id": "swelling_behind_ear", "escalate_to": "urgent_care" },
@@ -593,7 +599,7 @@
         { "id": "pain_radiating_groin", "label": "Pain radiating to the groin", "weight": 3 },
         { "id": "blood_in_urine", "label": "Pink, red, or brown urine", "weight": 2 },
         { "id": "restless_cant_sit_still", "label": "Can't find a comfortable position", "weight": 2 },
-        { "id": "nausea", "label": "Nausea or vomiting", "weight": 2 },
+        { "id": "nausea", "label": "Nausea", "weight": 2 },
         { "id": "frequent_urination", "label": "Frequent urge to urinate", "weight": 1 }
       ],
       "condition_red_flags": [
@@ -697,7 +703,7 @@
         { "id": "severe_fatigue_weeks", "label": "Severe fatigue lasting weeks", "weight": 3 },
         { "id": "severe_sore_throat", "label": "Severe sore throat", "weight": 2 },
         { "id": "swollen_lymph_nodes", "label": "Swollen neck glands", "weight": 2 },
-        { "id": "fever", "label": "Fever", "weight": 2 },
+        { "id": "fever", "label": "Fever over 100.4°F", "weight": 2 },
         { "id": "loss_of_appetite", "label": "Loss of appetite", "weight": 2 },
         { "id": "body_aches", "label": "Body aches", "weight": 1 }
       ],
