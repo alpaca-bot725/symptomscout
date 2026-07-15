@@ -1,0 +1,730 @@
+{
+  "_schema": {
+    "note": "Each condition has weighted symptoms. The triage engine sums weights for symptoms the user reports, divides by max_score to get a match percentage, and ranks conditions. Red flags are checked FIRST and override everything.",
+    "weight_guide": "3 = hallmark symptom (strongly suggests this condition), 2 = common symptom, 1 = supporting symptom (nonspecific)",
+    "urgency_levels": ["self_care", "see_doctor", "urgent_care", "emergency"],
+    "matching_rule": "A condition should only appear in results if the user reports at least one weight-3 symptom for it OR total score >= 40% of max_score",
+    "body_regions_note": "body_regions drive the intake UI only. Each region lists symptom ids; labels are resolved from the conditions that use them. A symptom used by a condition but not listed in any region is automatically shown under 'General / Whole body' by the app, so new conditions can be added without touching code.",
+    "derived_flags_note": "Some condition_red_flags ids are not user-selectable symptoms; the engine derives them from follow-up answers: fever / fever_over_104 (fever question), symptoms_over_3_days, symptoms_over_10_days, cough_over_3_weeks (duration question), recent_injury (injury question); head_injury_recent stays a selectable symptom under the Head region. Red flags that are never reported are still shown on the results screen as 'seek care immediately if...' warnings."
+  },
+
+  "global_red_flags": [
+    {
+      "symptom": "chest_pain_pressure",
+      "label": "Chest pain or pressure",
+      "action": "Call 911. Chest pain can signal a heart attack even in young people."
+    },
+    {
+      "symptom": "difficulty_breathing",
+      "label": "Severe difficulty breathing",
+      "action": "Call 911 or go to the ER immediately."
+    },
+    {
+      "symptom": "stroke_signs",
+      "label": "Face drooping, arm weakness, or slurred speech",
+      "action": "Call 911 immediately. These are signs of stroke and every minute matters."
+    },
+    {
+      "symptom": "severe_bleeding",
+      "label": "Bleeding that won't stop",
+      "action": "Apply firm pressure and call 911."
+    },
+    {
+      "symptom": "suicidal_thoughts",
+      "label": "Thoughts of harming yourself",
+      "action": "You're not alone. Call or text 988 (Suicide & Crisis Lifeline) right now to talk to someone."
+    },
+    {
+      "symptom": "worst_headache_of_life",
+      "label": "Sudden, worst headache of your life",
+      "action": "Go to the ER. Sudden severe headache can indicate bleeding in the brain."
+    },
+    {
+      "symptom": "stiff_neck_with_fever",
+      "label": "Stiff neck with high fever",
+      "action": "Go to the ER. This combination can indicate meningitis."
+    },
+    {
+      "symptom": "throat_tightness_swelling",
+      "label": "Throat tightness or face/tongue swelling",
+      "action": "Call 911. Rapid swelling can be anaphylaxis, a life-threatening allergic reaction."
+    }
+  ],
+
+  "body_regions": [
+    {
+      "id": "head",
+      "label": "Head & Neurological",
+      "icon": "🧠",
+      "symptoms": ["headache", "throbbing_headache_one_side", "band_like_pressure", "both_sides", "light_sensitivity", "sound_sensitivity", "visual_aura", "worse_with_activity", "not_worse_with_activity", "neck_shoulder_tightness", "dizziness", "dizziness_standing", "memory_trouble", "confusion_foggy", "head_injury_recent"]
+    },
+    {
+      "id": "eyes_ears_nose_throat",
+      "label": "Eyes, Ears, Nose & Throat",
+      "icon": "👂",
+      "symptoms": ["runny_nose", "sneezing", "sore_throat", "severe_sore_throat", "painful_swallowing", "white_patches_tonsils", "swollen_lymph_nodes", "no_cough", "facial_pressure", "thick_nasal_discharge", "reduced_smell", "tooth_pain_upper", "itchy_eyes_nose", "watery_eyes", "red_eye", "eye_discharge", "gritty_eye", "crusted_eyelashes", "ear_pain", "muffled_hearing", "ear_fullness", "ear_drainage", "loss_taste_smell"]
+    },
+    {
+      "id": "chest",
+      "label": "Chest & Breathing",
+      "icon": "🫁",
+      "symptoms": ["dry_cough", "mild_cough", "persistent_cough", "mucus_cough", "chest_soreness_cough", "sharp_chest_pain_breathing", "wheezing", "chest_tightness", "shortness_breath_exertion", "shortness_of_breath_anxiety", "night_cough", "rapid_breathing", "racing_heart", "heartburn", "burning_chest_after_meals", "recent_cold"]
+    },
+    {
+      "id": "abdomen",
+      "label": "Stomach & Digestion",
+      "icon": "🫃",
+      "symptoms": ["nausea", "vomiting", "diarrhea", "stomach_cramps", "abdominal_pain_general", "pain_migrating_lower_right", "pain_worse_with_movement", "loss_of_appetite", "sour_taste", "worse_lying_down", "regurgitation", "onset_hours_after_eating", "infrequent_stools", "hard_stools", "straining", "bloating", "feeling_incomplete", "crampy_pain_relieved_by_bm", "alternating_bowel_habits", "mucus_in_stool", "blood_in_stool_vomit", "lower_abdominal_pressure"]
+    },
+    {
+      "id": "urinary",
+      "label": "Urinary & Kidneys",
+      "icon": "💧",
+      "symptoms": ["burning_urination", "frequent_urination", "urgency_little_output", "cloudy_strong_urine", "dark_urine", "blood_in_urine", "severe_flank_pain_waves", "pain_radiating_groin", "restless_cant_sit_still"]
+    },
+    {
+      "id": "skin",
+      "label": "Skin & Allergies",
+      "icon": "🖐️",
+      "symptoms": ["itchy_raised_welts", "welts_move_around", "swelling_lips_face", "recent_new_food_med", "itchy_skin", "bruising", "symptoms_with_triggers"]
+    },
+    {
+      "id": "muscles",
+      "label": "Muscles, Bones & Joints",
+      "icon": "🦴",
+      "symptoms": ["body_aches", "muscle_spasm_back", "low_back_pain_movement", "pain_after_lifting", "stiffness_morning", "pain_better_rest", "ankle_pain_twist", "ankle_swelling", "pain_bearing_weight", "limited_motion", "muscle_cramps", "muscle_tension", "trembling", "tingling_hands"]
+    },
+    {
+      "id": "mind",
+      "label": "Mind & Mood",
+      "icon": "🧘",
+      "symptoms": ["sudden_intense_fear", "feeling_unreal", "peaked_within_10_min", "excessive_worry_months", "restlessness", "trouble_sleeping", "irritability", "difficulty_concentrating", "symptoms_with_stress"]
+    },
+    {
+      "id": "general",
+      "label": "General / Whole Body",
+      "icon": "🌡️",
+      "symptoms": ["fever", "low_fever", "no_fever", "chills", "fatigue", "fatigue_sudden", "severe_fatigue_weeks", "gradual_onset", "extreme_thirst", "dry_mouth", "heavy_sweating_heat", "weakness_after_heat", "history_asthma", "unintended_weight_loss"]
+    }
+  ],
+
+  "conditions": [
+    {
+      "id": "influenza",
+      "name": "Influenza (Flu)",
+      "description": "A viral respiratory infection that hits fast and hard, usually with fever, body aches, and exhaustion.",
+      "symptoms": [
+        { "id": "fever", "label": "Fever over 100.4°F", "weight": 3 },
+        { "id": "body_aches", "label": "Body aches", "weight": 3 },
+        { "id": "fatigue_sudden", "label": "Sudden severe fatigue", "weight": 3 },
+        { "id": "chills", "label": "Chills", "weight": 2 },
+        { "id": "dry_cough", "label": "Dry cough", "weight": 2 },
+        { "id": "headache", "label": "Headache", "weight": 1 },
+        { "id": "sore_throat", "label": "Sore throat", "weight": 1 }
+      ],
+      "condition_red_flags": [
+        { "id": "difficulty_breathing", "escalate_to": "emergency" },
+        { "id": "fever_over_104", "escalate_to": "urgent_care" }
+      ],
+      "urgency": "self_care",
+      "advice": "Rest, fluids, and fever reducers like acetaminophen. See a doctor within 48 hours of symptom onset if you're high-risk, since antivirals work best early. Most people recover in 5-7 days.",
+      "typical_duration_days": "5-7"
+    },
+    {
+      "id": "strep_throat",
+      "name": "Strep Throat",
+      "description": "A bacterial throat infection that needs antibiotics. Key clue: severe sore throat WITHOUT cough.",
+      "symptoms": [
+        { "id": "severe_sore_throat", "label": "Severe sore throat", "weight": 3 },
+        { "id": "painful_swallowing", "label": "Pain when swallowing", "weight": 3 },
+        { "id": "no_cough", "label": "No cough present", "weight": 2 },
+        { "id": "fever", "label": "Fever over 100.4°F", "weight": 2 },
+        { "id": "swollen_lymph_nodes", "label": "Swollen, tender neck glands", "weight": 2 },
+        { "id": "white_patches_tonsils", "label": "White patches on tonsils", "weight": 3 },
+        { "id": "headache", "label": "Headache", "weight": 1 }
+      ],
+      "condition_red_flags": [
+        { "id": "cannot_swallow_saliva", "escalate_to": "emergency" },
+        { "id": "difficulty_breathing", "escalate_to": "emergency" }
+      ],
+      "urgency": "see_doctor",
+      "advice": "See a doctor for a rapid strep test. Strep requires antibiotics — untreated, it can cause complications like rheumatic fever.",
+      "typical_duration_days": "3-7 with antibiotics"
+    },
+    {
+      "id": "common_cold",
+      "name": "Common Cold",
+      "description": "A mild viral infection centered in the nose and throat. Builds gradually, unlike the flu.",
+      "symptoms": [
+        { "id": "runny_nose", "label": "Runny or stuffy nose", "weight": 3 },
+        { "id": "sneezing", "label": "Sneezing", "weight": 3 },
+        { "id": "sore_throat", "label": "Mild sore throat", "weight": 2 },
+        { "id": "mild_cough", "label": "Mild cough", "weight": 2 },
+        { "id": "gradual_onset", "label": "Symptoms came on gradually", "weight": 2 },
+        { "id": "low_fever", "label": "Low-grade or no fever", "weight": 1 }
+      ],
+      "condition_red_flags": [
+        { "id": "symptoms_over_10_days", "escalate_to": "see_doctor" }
+      ],
+      "urgency": "self_care",
+      "advice": "Rest, fluids, and time. Saline rinses and honey (for cough) help. See a doctor if symptoms last more than 10 days or get worse after improving — that can signal a sinus infection.",
+      "typical_duration_days": "7-10"
+    },
+    {
+      "id": "migraine",
+      "name": "Migraine",
+      "description": "A neurological headache disorder, often one-sided and throbbing, with light/sound sensitivity or nausea.",
+      "symptoms": [
+        { "id": "throbbing_headache_one_side", "label": "Throbbing headache, often one side", "weight": 3 },
+        { "id": "light_sensitivity", "label": "Sensitivity to light", "weight": 3 },
+        { "id": "sound_sensitivity", "label": "Sensitivity to sound", "weight": 2 },
+        { "id": "nausea", "label": "Nausea", "weight": 2 },
+        { "id": "visual_aura", "label": "Visual aura (zigzags, flashing spots) before headache", "weight": 3 },
+        { "id": "worse_with_activity", "label": "Worse with physical activity", "weight": 2 }
+      ],
+      "condition_red_flags": [
+        { "id": "worst_headache_of_life", "escalate_to": "emergency" },
+        { "id": "headache_with_fever_stiff_neck", "escalate_to": "emergency" },
+        { "id": "headache_after_head_injury", "escalate_to": "urgent_care" }
+      ],
+      "urgency": "self_care",
+      "advice": "Rest in a dark, quiet room. OTC pain relievers work best taken early. If migraines are frequent (more than a few per month), see a doctor about preventive options.",
+      "typical_duration_days": "0.2-3 (4 hours to 3 days)"
+    },
+    {
+      "id": "appendicitis",
+      "name": "Appendicitis",
+      "description": "Inflammation of the appendix. Classic pattern: pain starts near the belly button, then migrates to the lower right abdomen.",
+      "symptoms": [
+        { "id": "pain_migrating_lower_right", "label": "Pain that moved to lower right abdomen", "weight": 3 },
+        { "id": "pain_worse_with_movement", "label": "Pain worse with walking, coughing, or bumps", "weight": 3 },
+        { "id": "loss_of_appetite", "label": "Loss of appetite", "weight": 2 },
+        { "id": "nausea", "label": "Nausea or vomiting", "weight": 2 },
+        { "id": "low_fever", "label": "Low-grade fever", "weight": 2 },
+        { "id": "abdominal_pain_general", "label": "Abdominal pain", "weight": 1 }
+      ],
+      "condition_red_flags": [
+        { "id": "severe_abdominal_pain", "escalate_to": "emergency" },
+        { "id": "rigid_abdomen", "escalate_to": "emergency" }
+      ],
+      "urgency": "urgent_care",
+      "advice": "Go to urgent care or the ER today. Appendicitis worsens over 24-72 hours and a ruptured appendix is a surgical emergency. Do not eat or take laxatives while waiting to be seen.",
+      "typical_duration_days": "requires treatment"
+    },
+    {
+      "id": "dehydration",
+      "name": "Dehydration",
+      "description": "Your body doesn't have enough fluid to function normally. Common after exercise, heat, illness, or not drinking enough.",
+      "symptoms": [
+        { "id": "dark_urine", "label": "Dark yellow urine or urinating less", "weight": 3 },
+        { "id": "extreme_thirst", "label": "Extreme thirst", "weight": 3 },
+        { "id": "dizziness_standing", "label": "Dizziness, especially when standing", "weight": 2 },
+        { "id": "dry_mouth", "label": "Dry mouth and lips", "weight": 2 },
+        { "id": "fatigue", "label": "Fatigue", "weight": 1 },
+        { "id": "headache", "label": "Headache", "weight": 1 }
+      ],
+      "condition_red_flags": [
+        { "id": "no_urination_8_hours", "escalate_to": "urgent_care" },
+        { "id": "confusion", "escalate_to": "emergency" },
+        { "id": "fainting", "escalate_to": "urgent_care" }
+      ],
+      "urgency": "self_care",
+      "advice": "Sip water or an electrolyte drink steadily rather than chugging. Rest in a cool place. If you can't keep fluids down or symptoms don't improve in a few hours, seek care.",
+      "typical_duration_days": "0.5-1 with rehydration"
+    },
+    {
+      "id": "gastroenteritis",
+      "name": "Gastroenteritis (Stomach Flu)",
+      "description": "Viral or bacterial inflammation of the stomach and intestines. Usually resolves on its own but dehydration is the main risk.",
+      "symptoms": [
+        { "id": "diarrhea", "label": "Diarrhea", "weight": 3 },
+        { "id": "vomiting", "label": "Vomiting", "weight": 3 },
+        { "id": "stomach_cramps", "label": "Stomach cramps", "weight": 2 },
+        { "id": "nausea", "label": "Nausea", "weight": 2 },
+        { "id": "low_fever", "label": "Low-grade fever", "weight": 1 },
+        { "id": "body_aches", "label": "Body aches", "weight": 1 }
+      ],
+      "condition_red_flags": [
+        { "id": "blood_in_stool_vomit", "escalate_to": "urgent_care" },
+        { "id": "severe_abdominal_pain", "escalate_to": "urgent_care" },
+        { "id": "signs_severe_dehydration", "escalate_to": "urgent_care" }
+      ],
+      "urgency": "self_care",
+      "advice": "Small sips of fluids with electrolytes. Ease back into bland foods (bananas, rice, toast). See a doctor if it lasts more than 3 days, or sooner if you see blood or can't keep any fluids down.",
+      "typical_duration_days": "1-3"
+    },
+    {
+      "id": "uti",
+      "name": "Urinary Tract Infection (UTI)",
+      "description": "A bacterial infection of the urinary tract, most often the bladder. Needs antibiotics to fully clear.",
+      "symptoms": [
+        { "id": "burning_urination", "label": "Burning or pain when urinating", "weight": 3 },
+        { "id": "frequent_urination", "label": "Frequent urge to urinate", "weight": 3 },
+        { "id": "urgency_little_output", "label": "Strong urge but little comes out", "weight": 2 },
+        { "id": "cloudy_strong_urine", "label": "Cloudy or strong-smelling urine", "weight": 2 },
+        { "id": "lower_abdominal_pressure", "label": "Pressure in lower abdomen", "weight": 1 }
+      ],
+      "condition_red_flags": [
+        { "id": "back_flank_pain_with_fever", "escalate_to": "urgent_care" },
+        { "id": "blood_in_urine", "escalate_to": "see_doctor" }
+      ],
+      "urgency": "see_doctor",
+      "advice": "See a doctor for a urine test and antibiotics — UTIs rarely clear on their own and can spread to the kidneys. Fever with back or side pain means the infection may have reached the kidneys: get care today.",
+      "typical_duration_days": "3-7 with antibiotics"
+    },
+    {
+      "id": "panic_attack",
+      "name": "Panic Attack",
+      "description": "A sudden surge of intense fear with strong physical symptoms that peaks within about 10 minutes. Feels dangerous but is not physically harmful.",
+      "symptoms": [
+        { "id": "sudden_intense_fear", "label": "Sudden intense fear or dread", "weight": 3 },
+        { "id": "racing_heart", "label": "Racing or pounding heart", "weight": 3 },
+        { "id": "shortness_of_breath_anxiety", "label": "Feeling short of breath or smothered", "weight": 2 },
+        { "id": "trembling", "label": "Trembling or shaking", "weight": 2 },
+        { "id": "tingling_hands", "label": "Tingling in hands or face", "weight": 2 },
+        { "id": "feeling_unreal", "label": "Feeling detached or unreal", "weight": 2 },
+        { "id": "peaked_within_10_min", "label": "Symptoms peaked within ~10 minutes", "weight": 3 }
+      ],
+      "condition_red_flags": [
+        { "id": "chest_pain_pressure", "escalate_to": "emergency" },
+        { "id": "suicidal_thoughts", "escalate_to": "emergency" }
+      ],
+      "urgency": "self_care",
+      "advice": "Slow your breathing: in for 4 counts, out for 6. Ground yourself by naming things you can see and hear. A first-ever episode with chest pain should be evaluated by a doctor to rule out heart issues. If attacks recur, a doctor or therapist can help a lot — panic disorder is very treatable.",
+      "typical_duration_days": "0.02 (usually under 30 minutes)"
+    },
+    {
+      "id": "tension_headache",
+      "name": "Tension Headache",
+      "description": "The most common headache type: a dull, band-like pressure on both sides of the head, often from stress, posture, or eye strain.",
+      "symptoms": [
+        { "id": "band_like_pressure", "label": "Dull, band-like pressure around head", "weight": 3 },
+        { "id": "both_sides", "label": "Pain on both sides of head", "weight": 2 },
+        { "id": "neck_shoulder_tightness", "label": "Tight neck or shoulder muscles", "weight": 2 },
+        { "id": "no_nausea", "label": "No nausea", "weight": 1 },
+        { "id": "not_worse_with_activity", "label": "Not worsened by routine activity", "weight": 1 }
+      ],
+      "condition_red_flags": [
+        { "id": "worst_headache_of_life", "escalate_to": "emergency" },
+        { "id": "headache_with_fever_stiff_neck", "escalate_to": "emergency" }
+      ],
+      "urgency": "self_care",
+      "advice": "OTC pain relievers, hydration, and a break from screens. Stretch your neck and shoulders. If you're getting these more than twice a week, see a doctor rather than relying on daily painkillers, which can cause rebound headaches.",
+      "typical_duration_days": "0.5-1"
+    },
+    {
+      "id": "covid19",
+      "name": "COVID-19",
+      "description": "A viral respiratory infection. Symptoms overlap with flu and colds; loss of taste or smell is a distinctive clue.",
+      "symptoms": [
+        { "id": "loss_taste_smell", "label": "New loss of taste or smell", "weight": 3 },
+        { "id": "dry_cough", "label": "Dry cough", "weight": 2 },
+        { "id": "fever", "label": "Fever over 100.4°F", "weight": 2 },
+        { "id": "fatigue", "label": "Fatigue", "weight": 2 },
+        { "id": "body_aches", "label": "Body aches", "weight": 2 },
+        { "id": "sore_throat", "label": "Sore throat", "weight": 1 },
+        { "id": "headache", "label": "Headache", "weight": 1 }
+      ],
+      "condition_red_flags": [
+        { "id": "difficulty_breathing", "escalate_to": "emergency" },
+        { "id": "confusion", "escalate_to": "emergency" },
+        { "id": "chest_pain_pressure", "escalate_to": "emergency" }
+      ],
+      "urgency": "self_care",
+      "advice": "Take a home test to confirm. Rest, fluids, and isolation per current guidance. People at high risk (older, immunocompromised, pregnant) should contact a doctor promptly — antiviral treatment works best started early.",
+      "typical_duration_days": "5-10"
+    },
+    {
+      "id": "sinus_infection",
+      "name": "Sinus Infection (Sinusitis)",
+      "description": "Inflamed, blocked sinuses, often after a cold. Classic clue: cold symptoms that improve, then get worse again.",
+      "symptoms": [
+        { "id": "facial_pressure", "label": "Pressure or pain in face/forehead", "weight": 3 },
+        { "id": "thick_nasal_discharge", "label": "Thick yellow or green nasal discharge", "weight": 3 },
+        { "id": "runny_nose", "label": "Stuffy or runny nose", "weight": 2 },
+        { "id": "tooth_pain_upper", "label": "Aching upper teeth", "weight": 2 },
+        { "id": "reduced_smell", "label": "Reduced sense of smell", "weight": 1 },
+        { "id": "headache", "label": "Headache", "weight": 1 }
+      ],
+      "condition_red_flags": [
+        { "id": "swelling_around_eyes", "escalate_to": "urgent_care" },
+        { "id": "stiff_neck_with_fever", "escalate_to": "emergency" },
+        { "id": "symptoms_over_10_days", "escalate_to": "see_doctor" }
+      ],
+      "urgency": "self_care",
+      "advice": "Saline rinses, steam, decongestants, and time — most sinusitis is viral and clears in about 10 days. See a doctor if symptoms last beyond 10 days or come with high fever; that pattern suggests a bacterial infection.",
+      "typical_duration_days": "7-10"
+    },
+    {
+      "id": "allergic_rhinitis",
+      "name": "Seasonal Allergies (Allergic Rhinitis)",
+      "description": "An immune overreaction to pollen, dust, or dander. Itchiness and clear discharge distinguish it from a cold.",
+      "symptoms": [
+        { "id": "sneezing", "label": "Sneezing fits", "weight": 3 },
+        { "id": "itchy_eyes_nose", "label": "Itchy eyes, nose, or throat", "weight": 3 },
+        { "id": "runny_nose", "label": "Clear runny nose", "weight": 2 },
+        { "id": "watery_eyes", "label": "Watery eyes", "weight": 2 },
+        { "id": "symptoms_with_triggers", "label": "Symptoms flare around triggers (outdoors, pets, dust)", "weight": 2 },
+        { "id": "no_fever", "label": "No fever", "weight": 1 }
+      ],
+      "condition_red_flags": [
+        { "id": "difficulty_breathing", "escalate_to": "emergency" },
+        { "id": "throat_tightness_swelling", "escalate_to": "emergency" }
+      ],
+      "urgency": "self_care",
+      "advice": "OTC antihistamines and steroid nasal sprays work well. Rinse sinuses with saline and keep windows closed on high-pollen days. See a doctor if OTC options don't control it — allergy testing and prescription options exist.",
+      "typical_duration_days": "ongoing while exposed"
+    },
+    {
+      "id": "asthma_flare",
+      "name": "Asthma Flare-Up",
+      "description": "Airway narrowing that causes wheezing, coughing, and chest tightness, often triggered by exercise, allergens, or infections.",
+      "symptoms": [
+        { "id": "wheezing", "label": "Wheezing (whistling sound when breathing)", "weight": 3 },
+        { "id": "shortness_breath_exertion", "label": "Short of breath with activity", "weight": 3 },
+        { "id": "chest_tightness", "label": "Chest tightness", "weight": 2 },
+        { "id": "night_cough", "label": "Coughing at night", "weight": 2 },
+        { "id": "history_asthma", "label": "History of asthma or reactive airways", "weight": 2 }
+      ],
+      "condition_red_flags": [
+        { "id": "difficulty_breathing", "escalate_to": "emergency" },
+        { "id": "cannot_speak_full_sentences", "escalate_to": "emergency" },
+        { "id": "blue_lips_fingernails", "escalate_to": "emergency" }
+      ],
+      "urgency": "see_doctor",
+      "advice": "Use your rescue inhaler as prescribed and sit upright. If you need your rescue inhaler more than twice a week, your asthma plan needs adjusting — see your doctor. Struggling to speak in full sentences means call 911.",
+      "typical_duration_days": "varies with treatment"
+    },
+    {
+      "id": "acute_bronchitis",
+      "name": "Acute Bronchitis (Chest Cold)",
+      "description": "Inflammation of the airways, usually after a cold. The cough can linger for weeks even after you feel better.",
+      "symptoms": [
+        { "id": "persistent_cough", "label": "Persistent cough lasting days to weeks", "weight": 3 },
+        { "id": "mucus_cough", "label": "Cough that brings up mucus", "weight": 2 },
+        { "id": "chest_soreness_cough", "label": "Chest soreness from coughing", "weight": 2 },
+        { "id": "recent_cold", "label": "Started after a cold", "weight": 2 },
+        { "id": "low_fever", "label": "Low-grade fever", "weight": 1 },
+        { "id": "fatigue", "label": "Fatigue", "weight": 1 }
+      ],
+      "condition_red_flags": [
+        { "id": "difficulty_breathing", "escalate_to": "emergency" },
+        { "id": "fever_over_104", "escalate_to": "urgent_care" },
+        { "id": "cough_over_3_weeks", "escalate_to": "see_doctor" }
+      ],
+      "urgency": "self_care",
+      "advice": "Rest, fluids, honey for the cough, and a humidifier. Antibiotics usually don't help — most bronchitis is viral. See a doctor if the cough lasts over 3 weeks, or sooner with high fever or breathing trouble.",
+      "typical_duration_days": "10-21 (cough may linger)"
+    },
+    {
+      "id": "pneumonia",
+      "name": "Pneumonia",
+      "description": "An infection deep in the lungs. Sicker than a chest cold: high fever, shaking chills, and pain when breathing in.",
+      "symptoms": [
+        { "id": "sharp_chest_pain_breathing", "label": "Sharp chest pain when breathing deeply", "weight": 3 },
+        { "id": "mucus_cough", "label": "Cough with mucus (may be rust-colored)", "weight": 2 },
+        { "id": "fever", "label": "Fever over 100.4°F", "weight": 2 },
+        { "id": "chills", "label": "Shaking chills", "weight": 2 },
+        { "id": "shortness_breath_exertion", "label": "Short of breath with activity", "weight": 2 },
+        { "id": "rapid_breathing", "label": "Fast, shallow breathing", "weight": 2 },
+        { "id": "fatigue", "label": "Fatigue", "weight": 1 }
+      ],
+      "condition_red_flags": [
+        { "id": "difficulty_breathing", "escalate_to": "emergency" },
+        { "id": "confusion", "escalate_to": "emergency" },
+        { "id": "chest_pain_pressure", "escalate_to": "emergency" }
+      ],
+      "urgency": "urgent_care",
+      "advice": "Get seen today — pneumonia needs a chest exam and often antibiotics. It can worsen quickly, especially in older adults and people with lung conditions.",
+      "typical_duration_days": "7-21 with treatment"
+    },
+    {
+      "id": "ear_infection",
+      "name": "Middle Ear Infection (Otitis Media)",
+      "description": "Fluid and infection behind the eardrum, common after colds. More frequent in children but adults get them too.",
+      "symptoms": [
+        { "id": "ear_pain", "label": "Ear pain or pressure", "weight": 3 },
+        { "id": "muffled_hearing", "label": "Muffled hearing", "weight": 2 },
+        { "id": "ear_fullness", "label": "Feeling of fullness in the ear", "weight": 2 },
+        { "id": "ear_drainage", "label": "Fluid draining from the ear", "weight": 2 },
+        { "id": "recent_cold", "label": "Recent cold or congestion", "weight": 1 },
+        { "id": "fever", "label": "Fever", "weight": 1 }
+      ],
+      "condition_red_flags": [
+        { "id": "swelling_behind_ear", "escalate_to": "urgent_care" },
+        { "id": "stiff_neck_with_fever", "escalate_to": "emergency" }
+      ],
+      "urgency": "see_doctor",
+      "advice": "See a doctor within a day or two — they'll check the eardrum and decide if antibiotics are needed. OTC pain relievers and a warm compress help in the meantime. Redness or swelling behind the ear needs same-day care.",
+      "typical_duration_days": "2-7"
+    },
+    {
+      "id": "conjunctivitis",
+      "name": "Pink Eye (Conjunctivitis)",
+      "description": "Inflammation of the eye's surface from viruses, bacteria, or allergies. Very contagious when infectious.",
+      "symptoms": [
+        { "id": "red_eye", "label": "Red or pink eye", "weight": 3 },
+        { "id": "eye_discharge", "label": "Eye discharge (watery or pus-like)", "weight": 3 },
+        { "id": "crusted_eyelashes", "label": "Crusted eyelashes on waking", "weight": 2 },
+        { "id": "gritty_eye", "label": "Gritty, sandy feeling in the eye", "weight": 2 },
+        { "id": "itchy_eyes_nose", "label": "Itchy eyes", "weight": 1 },
+        { "id": "watery_eyes", "label": "Watery eyes", "weight": 1 }
+      ],
+      "condition_red_flags": [
+        { "id": "severe_eye_pain", "escalate_to": "urgent_care" },
+        { "id": "vision_changes", "escalate_to": "urgent_care" }
+      ],
+      "urgency": "see_doctor",
+      "advice": "Wash hands often and don't share towels — it spreads easily. Most viral cases clear on their own; thick pus-like discharge may need antibiotic drops. Eye PAIN or vision changes are different: get seen the same day.",
+      "typical_duration_days": "5-14"
+    },
+    {
+      "id": "gerd",
+      "name": "Acid Reflux (GERD)",
+      "description": "Stomach acid flowing back into the esophagus, causing burning behind the breastbone, often after meals or when lying down.",
+      "symptoms": [
+        { "id": "heartburn", "label": "Burning feeling behind the breastbone", "weight": 3 },
+        { "id": "worse_lying_down", "label": "Worse when lying down or bending over", "weight": 3 },
+        { "id": "sour_taste", "label": "Sour or bitter taste in mouth", "weight": 2 },
+        { "id": "regurgitation", "label": "Food or liquid coming back up", "weight": 2 },
+        { "id": "burning_chest_after_meals", "label": "Burning after large or spicy meals", "weight": 2 }
+      ],
+      "condition_red_flags": [
+        { "id": "chest_pain_pressure", "escalate_to": "emergency" },
+        { "id": "trouble_swallowing", "escalate_to": "see_doctor" },
+        { "id": "unintended_weight_loss", "escalate_to": "see_doctor" }
+      ],
+      "urgency": "self_care",
+      "advice": "Smaller meals, avoid eating 2-3 hours before bed, raise the head of your bed, and try OTC antacids. IMPORTANT: crushing or pressure-like chest pain, especially with exertion, is treated as a heart problem until proven otherwise — call 911.",
+      "typical_duration_days": "ongoing, managed with lifestyle"
+    },
+    {
+      "id": "food_poisoning",
+      "name": "Food Poisoning",
+      "description": "Illness from contaminated food, typically starting within hours of eating. Usually short and intense.",
+      "symptoms": [
+        { "id": "onset_hours_after_eating", "label": "Started within hours of a meal", "weight": 3 },
+        { "id": "vomiting", "label": "Vomiting", "weight": 3 },
+        { "id": "diarrhea", "label": "Diarrhea", "weight": 2 },
+        { "id": "stomach_cramps", "label": "Stomach cramps", "weight": 2 },
+        { "id": "nausea", "label": "Nausea", "weight": 2 },
+        { "id": "low_fever", "label": "Low-grade fever", "weight": 1 }
+      ],
+      "condition_red_flags": [
+        { "id": "blood_in_stool_vomit", "escalate_to": "urgent_care" },
+        { "id": "signs_severe_dehydration", "escalate_to": "urgent_care" },
+        { "id": "symptoms_over_3_days", "escalate_to": "see_doctor" }
+      ],
+      "urgency": "self_care",
+      "advice": "Small sips of electrolyte fluids, rest, and bland food when you can keep it down. Most cases resolve in 1-2 days. Blood in vomit or stool, signs of dehydration, or symptoms beyond 3 days mean get seen.",
+      "typical_duration_days": "1-2"
+    },
+    {
+      "id": "constipation",
+      "name": "Constipation",
+      "description": "Infrequent, hard, or difficult bowel movements. Usually from low fiber, low fluids, inactivity, or medication side effects.",
+      "symptoms": [
+        { "id": "infrequent_stools", "label": "Fewer than 3 bowel movements a week", "weight": 3 },
+        { "id": "hard_stools", "label": "Hard, dry, or lumpy stools", "weight": 3 },
+        { "id": "straining", "label": "Straining to go", "weight": 2 },
+        { "id": "bloating", "label": "Bloating", "weight": 2 },
+        { "id": "feeling_incomplete", "label": "Feeling like you can't fully empty", "weight": 1 }
+      ],
+      "condition_red_flags": [
+        { "id": "severe_abdominal_pain", "escalate_to": "urgent_care" },
+        { "id": "no_stool_no_gas_with_vomiting", "escalate_to": "emergency" },
+        { "id": "blood_in_stool_vomit", "escalate_to": "see_doctor" }
+      ],
+      "urgency": "self_care",
+      "advice": "More water, more fiber (fruits, vegetables, whole grains), and a daily walk. OTC options like fiber supplements or gentle laxatives can help short-term. No stool AND no gas plus vomiting suggests a blockage — that's an emergency.",
+      "typical_duration_days": "varies"
+    },
+    {
+      "id": "ibs",
+      "name": "Irritable Bowel Syndrome (IBS)",
+      "description": "A chronic gut disorder with crampy pain and changed bowel habits, often flaring with stress or certain foods. Diagnosed by a doctor after ruling out other causes.",
+      "symptoms": [
+        { "id": "crampy_pain_relieved_by_bm", "label": "Crampy pain relieved by a bowel movement", "weight": 3 },
+        { "id": "alternating_bowel_habits", "label": "Alternating diarrhea and constipation", "weight": 3 },
+        { "id": "bloating", "label": "Bloating", "weight": 2 },
+        { "id": "mucus_in_stool", "label": "Mucus in stool", "weight": 2 },
+        { "id": "symptoms_with_stress", "label": "Symptoms flare with stress", "weight": 2 }
+      ],
+      "condition_red_flags": [
+        { "id": "blood_in_stool_vomit", "escalate_to": "see_doctor" },
+        { "id": "unintended_weight_loss", "escalate_to": "see_doctor" },
+        { "id": "fever", "escalate_to": "see_doctor" }
+      ],
+      "urgency": "see_doctor",
+      "advice": "See a doctor to confirm the diagnosis — IBS is diagnosed after ruling out other conditions. Blood in stool, weight loss, fever, or symptoms that wake you at night are NOT typical of IBS and need evaluation.",
+      "typical_duration_days": "chronic, managed"
+    },
+    {
+      "id": "kidney_stones",
+      "name": "Kidney Stones",
+      "description": "Hard mineral deposits passing through the urinary tract. Causes some of the most intense pain there is, coming in waves.",
+      "symptoms": [
+        { "id": "severe_flank_pain_waves", "label": "Severe side/back pain coming in waves", "weight": 3 },
+        { "id": "pain_radiating_groin", "label": "Pain radiating to the groin", "weight": 3 },
+        { "id": "blood_in_urine", "label": "Pink, red, or brown urine", "weight": 2 },
+        { "id": "restless_cant_sit_still", "label": "Can't find a comfortable position", "weight": 2 },
+        { "id": "nausea", "label": "Nausea or vomiting", "weight": 2 },
+        { "id": "frequent_urination", "label": "Frequent urge to urinate", "weight": 1 }
+      ],
+      "condition_red_flags": [
+        { "id": "back_flank_pain_with_fever", "escalate_to": "emergency" },
+        { "id": "no_urination_8_hours", "escalate_to": "urgent_care" },
+        { "id": "uncontrollable_vomiting", "escalate_to": "urgent_care" }
+      ],
+      "urgency": "urgent_care",
+      "advice": "Get seen today for imaging and pain control. Many stones pass with fluids and medication, but size and position matter. Fever with stone pain can mean an infected, blocked kidney — that's an emergency.",
+      "typical_duration_days": "days to weeks to pass"
+    },
+    {
+      "id": "low_back_strain",
+      "name": "Low Back Strain",
+      "description": "Overstretched or torn back muscles, usually from lifting, twisting, or overuse. Painful but typically heals on its own.",
+      "symptoms": [
+        { "id": "low_back_pain_movement", "label": "Low back pain that worsens with movement", "weight": 3 },
+        { "id": "pain_after_lifting", "label": "Started after lifting, twisting, or activity", "weight": 3 },
+        { "id": "muscle_spasm_back", "label": "Muscle spasms in the back", "weight": 2 },
+        { "id": "stiffness_morning", "label": "Stiffness, worse in the morning", "weight": 1 },
+        { "id": "pain_better_rest", "label": "Better with rest", "weight": 1 }
+      ],
+      "condition_red_flags": [
+        { "id": "numbness_groin_saddle", "escalate_to": "emergency" },
+        { "id": "loss_bladder_bowel_control", "escalate_to": "emergency" },
+        { "id": "leg_weakness", "escalate_to": "urgent_care" }
+      ],
+      "urgency": "self_care",
+      "advice": "Keep moving gently — long bed rest slows healing. Ice for the first day or two, then heat. OTC pain relievers help. Numbness in the groin area or losing bladder/bowel control are emergencies (cauda equina syndrome).",
+      "typical_duration_days": "7-14"
+    },
+    {
+      "id": "ankle_sprain",
+      "name": "Ankle Sprain",
+      "description": "Stretched or torn ankle ligaments, usually from rolling the ankle. Graded mild to severe by swelling and stability.",
+      "symptoms": [
+        { "id": "ankle_pain_twist", "label": "Ankle pain after twisting or rolling it", "weight": 3 },
+        { "id": "ankle_swelling", "label": "Swelling around the ankle", "weight": 3 },
+        { "id": "bruising", "label": "Bruising", "weight": 2 },
+        { "id": "pain_bearing_weight", "label": "Pain when putting weight on it", "weight": 2 },
+        { "id": "limited_motion", "label": "Limited range of motion", "weight": 1 }
+      ],
+      "condition_red_flags": [
+        { "id": "cannot_bear_weight_4_steps", "escalate_to": "urgent_care" },
+        { "id": "visible_deformity", "escalate_to": "urgent_care" },
+        { "id": "foot_numb_or_cold", "escalate_to": "urgent_care" }
+      ],
+      "urgency": "self_care",
+      "advice": "RICE: rest, ice (20 minutes at a time), compression wrap, elevation. If you can't take 4 steps, the ankle looks deformed, or the foot is numb or cold, get an X-ray today.",
+      "typical_duration_days": "7-28 depending on severity"
+    },
+    {
+      "id": "concussion",
+      "name": "Concussion",
+      "description": "A mild traumatic brain injury from a blow or jolt to the head. Symptoms can appear right away or hours later.",
+      "symptoms": [
+        { "id": "head_injury_recent", "label": "Recent blow or jolt to the head", "weight": 3 },
+        { "id": "confusion_foggy", "label": "Feeling foggy or slowed down", "weight": 2 },
+        { "id": "headache", "label": "Headache", "weight": 2 },
+        { "id": "dizziness", "label": "Dizziness or balance problems", "weight": 2 },
+        { "id": "memory_trouble", "label": "Trouble remembering events around the injury", "weight": 2 },
+        { "id": "nausea", "label": "Nausea", "weight": 1 },
+        { "id": "light_sensitivity", "label": "Sensitivity to light", "weight": 1 }
+      ],
+      "condition_red_flags": [
+        { "id": "loss_of_consciousness", "escalate_to": "emergency" },
+        { "id": "repeated_vomiting", "escalate_to": "emergency" },
+        { "id": "worsening_headache", "escalate_to": "emergency" },
+        { "id": "unequal_pupils", "escalate_to": "emergency" }
+      ],
+      "urgency": "urgent_care",
+      "advice": "Get evaluated today — concussions need a professional assessment and a return-to-activity plan. Someone should stay with you for 24 hours. Worsening headache, repeated vomiting, or unusual drowsiness → ER immediately.",
+      "typical_duration_days": "7-14 for most"
+    },
+    {
+      "id": "generalized_anxiety",
+      "name": "Generalized Anxiety",
+      "description": "Persistent, hard-to-control worry most days for months, with physical symptoms like tension, restlessness, and poor sleep.",
+      "symptoms": [
+        { "id": "excessive_worry_months", "label": "Excessive worry most days, for months", "weight": 3 },
+        { "id": "restlessness", "label": "Feeling restless, keyed up, or on edge", "weight": 2 },
+        { "id": "trouble_sleeping", "label": "Trouble falling or staying asleep", "weight": 2 },
+        { "id": "muscle_tension", "label": "Muscle tension", "weight": 2 },
+        { "id": "difficulty_concentrating", "label": "Difficulty concentrating", "weight": 2 },
+        { "id": "irritability", "label": "Irritability", "weight": 1 },
+        { "id": "fatigue", "label": "Fatigue", "weight": 1 }
+      ],
+      "condition_red_flags": [
+        { "id": "suicidal_thoughts", "escalate_to": "emergency" },
+        { "id": "chest_pain_pressure", "escalate_to": "emergency" }
+      ],
+      "urgency": "see_doctor",
+      "advice": "Anxiety this persistent deserves real help, and treatment works: therapy (especially CBT), lifestyle changes, and sometimes medication. Start with your doctor or campus counseling. If you ever have thoughts of self-harm, call or text 988.",
+      "typical_duration_days": "chronic, very treatable"
+    },
+    {
+      "id": "mononucleosis",
+      "name": "Mononucleosis (Mono)",
+      "description": "A viral infection (usually Epstein-Barr) common in teens and young adults. The signature is exhaustion that lasts weeks.",
+      "symptoms": [
+        { "id": "severe_fatigue_weeks", "label": "Severe fatigue lasting weeks", "weight": 3 },
+        { "id": "severe_sore_throat", "label": "Severe sore throat", "weight": 2 },
+        { "id": "swollen_lymph_nodes", "label": "Swollen neck glands", "weight": 2 },
+        { "id": "fever", "label": "Fever", "weight": 2 },
+        { "id": "loss_of_appetite", "label": "Loss of appetite", "weight": 1 },
+        { "id": "body_aches", "label": "Body aches", "weight": 1 }
+      ],
+      "condition_red_flags": [
+        { "id": "severe_left_upper_belly_pain", "escalate_to": "emergency" },
+        { "id": "difficulty_breathing", "escalate_to": "emergency" }
+      ],
+      "urgency": "see_doctor",
+      "advice": "See a doctor for a mono test. Rest is the main treatment — and AVOID contact sports for several weeks, because mono can enlarge the spleen. Sudden severe pain in the upper left belly could be a ruptured spleen: call 911.",
+      "typical_duration_days": "14-42"
+    },
+    {
+      "id": "hives",
+      "name": "Hives (Allergic Reaction)",
+      "description": "Itchy raised welts from an allergic reaction — foods, medications, infections, or even stress and temperature changes.",
+      "symptoms": [
+        { "id": "itchy_raised_welts", "label": "Itchy raised welts on the skin", "weight": 3 },
+        { "id": "welts_move_around", "label": "Welts that appear, fade, and move around", "weight": 2 },
+        { "id": "itchy_skin", "label": "Intense itching", "weight": 2 },
+        { "id": "recent_new_food_med", "label": "Recently tried a new food or medication", "weight": 2 },
+        { "id": "swelling_lips_face", "label": "Mild swelling of lips or eyelids", "weight": 2 }
+      ],
+      "condition_red_flags": [
+        { "id": "throat_tightness_swelling", "escalate_to": "emergency" },
+        { "id": "difficulty_breathing", "escalate_to": "emergency" },
+        { "id": "dizziness_with_rash", "escalate_to": "emergency" }
+      ],
+      "urgency": "self_care",
+      "advice": "OTC antihistamines usually calm hives within hours. Note what you ate or took beforehand. Hives PLUS throat tightness, trouble breathing, or dizziness is anaphylaxis: use an epinephrine auto-injector if available and call 911.",
+      "typical_duration_days": "1-2 (individual welts < 24h)"
+    },
+    {
+      "id": "heat_exhaustion",
+      "name": "Heat Exhaustion",
+      "description": "The body overheating from heat and dehydration. The step before heat stroke — cool down now to keep it from progressing.",
+      "symptoms": [
+        { "id": "heavy_sweating_heat", "label": "Heavy sweating during heat or exertion", "weight": 3 },
+        { "id": "weakness_after_heat", "label": "Weakness or faintness after heat exposure", "weight": 3 },
+        { "id": "dizziness_standing", "label": "Dizziness", "weight": 2 },
+        { "id": "nausea", "label": "Nausea", "weight": 2 },
+        { "id": "muscle_cramps", "label": "Muscle cramps", "weight": 2 },
+        { "id": "headache", "label": "Headache", "weight": 1 },
+        { "id": "extreme_thirst", "label": "Extreme thirst", "weight": 1 }
+      ],
+      "condition_red_flags": [
+        { "id": "confusion", "escalate_to": "emergency" },
+        { "id": "hot_dry_skin_no_sweat", "escalate_to": "emergency" },
+        { "id": "fainting", "escalate_to": "urgent_care" }
+      ],
+      "urgency": "self_care",
+      "advice": "Get to a cool place NOW, loosen clothing, sip cool fluids, and put cool wet cloths on skin. You should improve within an hour. Confusion or hot DRY skin means heat stroke — call 911 and cool aggressively while waiting.",
+      "typical_duration_days": "0.5-1 with cooling"
+    }
+  ]
+}

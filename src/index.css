@@ -1,0 +1,35 @@
+@import "tailwindcss";
+
+@theme {
+  --font-sans: "Segoe UI", system-ui, -apple-system, "Helvetica Neue", Arial, sans-serif;
+}
+
+html {
+  -webkit-tap-highlight-color: transparent;
+}
+
+body {
+  @apply bg-sky-50 text-slate-800 antialiased;
+}
+
+/*
+ * Severity slider: native range inputs are ~16px tall, far below the 44px
+ * touch-target minimum. Restyle for a full-height hit area + thumb-sized handle.
+ */
+input[type="range"] {
+  @apply h-11 w-full cursor-pointer appearance-none bg-transparent;
+}
+input[type="range"]::-webkit-slider-runnable-track {
+  @apply h-2 rounded-full bg-sky-200;
+}
+input[type="range"]::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  @apply size-7 rounded-full bg-blue-600 shadow-md;
+  margin-top: -10px; /* center the 28px thumb on the 8px track */
+}
+input[type="range"]::-moz-range-track {
+  @apply h-2 rounded-full bg-sky-200;
+}
+input[type="range"]::-moz-range-thumb {
+  @apply size-7 rounded-full border-0 bg-blue-600 shadow-md;
+}
