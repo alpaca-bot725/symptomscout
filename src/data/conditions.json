@@ -1,6 +1,16 @@
 {
+  "version": "1.0",
+  "changelog": [
+    {
+      "version": "1.0",
+      "date": "2026-07-13",
+      "change": "Initial knowledge base: 30 conditions with weighted symptoms, global and per-condition red flags, body regions.",
+      "evidence": "Baseline — weights set from common clinical presentations, not outcome data."
+    }
+  ],
   "_schema": {
     "note": "Each condition has weighted symptoms. The triage engine sums weights for symptoms the user reports, divides by max_score to get a match percentage, and ranks conditions. Red flags are checked FIRST and override everything.",
+    "versioning_note": "Bump `version` and append a `changelog` entry whenever weights or conditions change. Changes are decided MANUALLY by reviewing the /insights dashboard — never automated. See README 'Learning loop' for the workflow.",
     "weight_guide": "3 = hallmark symptom (strongly suggests this condition), 2 = common symptom, 1 = supporting symptom (nonspecific)",
     "urgency_levels": ["self_care", "see_doctor", "urgent_care", "emergency"],
     "matching_rule": "A condition should only appear in results if the user reports at least one weight-3 symptom for it OR total score >= 40% of max_score",

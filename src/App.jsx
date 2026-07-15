@@ -1,6 +1,8 @@
 import { useState } from 'react'
-import { runTriage, checkGlobalRedFlags } from './engine/triage'
+import { runTriage, checkGlobalRedFlags, symptomLabel } from './engine/triage'
 import { saveEpisode } from './lib/history'
+import kb from './data/conditions.json'
+import InsightsScreen from './components/InsightsScreen'
 import DisclaimerBanner from './components/DisclaimerBanner'
 import RedFlagCheck from './components/RedFlagCheck'
 import RegionPicker from './components/RegionPicker'
@@ -17,6 +19,11 @@ import HistoryScreen from './components/HistoryScreen'
  */
 export default function App() {
   const [tab, setTab] = useState('check') // 'check' | 'history'
+
+  // Hidden admin route — not linked anywhere in the nav. Reads the same
+  // localStorage history as the rest of the app; see vercel.json for the
+  // SPA rewrite that makes this path work in production.
+  const isInsights = window.location.pathname.replace(/\/+$/, '') === '/insights'
   const [step, setStep] = useState('home')
   const [redFlagSelection, setRedFlagSelection] = useState(new Set())
   const [region, setRegion] = useState(null)
@@ -55,23 +62,29 @@ export default function App() {
   const finishIntake = (answers) => {
     const result = runTriage([...symptoms], answers)
     setTriage(result)
-    const labels = region.symptoms.filter((s) => symptoms.has(s.id)).map((s) => s.label)
-    // Symptoms picked via search may come from other regions:
-    const known = new Set(region.symptoms.map((s) => s.id))
-    const extra = [...symptoms].filter((id) => !known.has(id))
+    const symptomIds = [...symptoms]
     saveEpisode({
       emergency: false,
       regionLabel: region.label,
-      symptomLabels: [...labels, ...extra.map((id) => id.replaceAll('_', ' '))],
+      // ids power the /insights miss analysis; labels stay for display/export
+      symptomIds,
+      symptomLabels: symptomIds.map((id) => symptomLabel(id)),
       answers,
       topResults: result.results.map((r) => ({
+        id: r.condition.id,
         name: r.condition.name,
         percent: r.percent,
+        score: r.score,
+        maxScore: r.maxScore,
         urgency: r.urgency,
       })),
       overallUrgency: result.overallUrgency,
     })
     setStep('results')
+  }
+
+  if (isInsights) {
+    return <InsightsScreen />
   }
 
   return (
@@ -155,8 +168,9 @@ export default function App() {
         )}
       </main>
 
-      <div className="mt-4">
+      <div className="mt-4 space-y-1">
         <DisclaimerBanner />
+        <p className="text-center text-[10px] text-slate-400">Knowledge base v{kb.version}</p>
       </div>
 
       {/* Bottom tab bar — fixed, thumb-reachable */}

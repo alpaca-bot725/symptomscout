@@ -1,16 +1,26 @@
 import { useState } from 'react'
 import { URGENCY_INFO } from '../engine/triage'
-import { loadHistory, deleteEpisode, clearHistory, buildDoctorSummary, downloadSummary } from '../lib/history'
+import { loadHistory, updateEpisode, deleteEpisode, clearHistory, buildDoctorSummary, downloadSummary, describeOutcome } from '../lib/history'
+import OutcomeForm from './OutcomeForm'
+import kb from '../data/conditions.json'
+
+const conditionNameById = Object.fromEntries(kb.conditions.map((c) => [c.id, c.name]))
 
 /** Episode log stored on-device, with a doctor-friendly export. */
 export default function HistoryScreen() {
   const [history, setHistory] = useState(loadHistory)
   const [copied, setCopied] = useState(false)
+  const [editingOutcomeId, setEditingOutcomeId] = useState(null)
 
   const copySummary = async () => {
-    await navigator.clipboard.writeText(buildDoctorSummary(history))
+    await navigator.clipboard.writeText(buildDoctorSummary(history, conditionNameById))
     setCopied(true)
     setTimeout(() => setCopied(false), 2000)
+  }
+
+  const saveOutcome = (episodeId, outcome) => {
+    setHistory(updateEpisode(episodeId, { outcome }))
+    setEditingOutcomeId(null)
   }
 
   if (history.length === 0) {
@@ -36,7 +46,7 @@ export default function HistoryScreen() {
       </header>
 
       <div className="grid grid-cols-2 gap-2">
-        <button onClick={() => downloadSummary(history)} className="min-h-12 rounded-2xl bg-blue-600 px-3 py-3 text-sm font-semibold text-white shadow-sm active:bg-blue-700">
+        <button onClick={() => downloadSummary(history, conditionNameById)} className="min-h-12 rounded-2xl bg-blue-600 px-3 py-3 text-sm font-semibold text-white shadow-sm active:bg-blue-700">
           ⬇ Download summary
         </button>
         <button onClick={copySummary} className="min-h-12 rounded-2xl bg-white px-3 py-3 text-sm font-semibold text-blue-700 ring-1 ring-blue-200 active:bg-blue-50">
@@ -78,6 +88,36 @@ export default function HistoryScreen() {
                 {URGENCY_INFO[ep.overallUrgency]?.label}
               </span>
             </div>
+          )}
+
+          {/* Outcome feedback — optional, low-pressure, editable forever.
+              Not shown for emergency episodes: those users were told to call 911,
+              not to come back and fill in forms. */}
+          {!ep.emergency && (
+            editingOutcomeId === ep.id ? (
+              <OutcomeForm
+                initial={ep.outcome}
+                onSave={(outcome) => saveOutcome(ep.id, outcome)}
+                onCancel={() => setEditingOutcomeId(null)}
+              />
+            ) : ep.outcome ? (
+              <div className="mt-3 flex items-center justify-between gap-2 rounded-xl bg-emerald-50 px-3 py-2 ring-1 ring-emerald-200">
+                <p className="text-xs font-medium text-emerald-900">{describeOutcome(ep.outcome, conditionNameById)}</p>
+                <button
+                  onClick={() => setEditingOutcomeId(ep.id)}
+                  className="min-h-11 shrink-0 rounded-lg px-2 text-xs font-semibold text-emerald-700 active:bg-emerald-100"
+                >
+                  Edit
+                </button>
+              </div>
+            ) : (
+              <button
+                onClick={() => setEditingOutcomeId(ep.id)}
+                className="mt-3 w-full min-h-11 rounded-xl bg-white px-3 py-2 text-sm font-semibold text-blue-700 ring-1 ring-blue-200 active:bg-blue-50"
+              >
+                ＋ Add outcome
+              </button>
+            )
           )}
         </div>
       ))}
