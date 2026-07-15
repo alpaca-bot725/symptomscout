@@ -1,6 +1,12 @@
 {
-  "version": "1.0",
+  "version": "1.1",
   "changelog": [
+    {
+      "version": "1.1",
+      "date": "2026-07-15",
+      "change": "Raised loss_of_appetite weight in mononucleosis from 1 to 2.",
+      "evidence": "2 of 2 confirmed mono reports included loss of appetite; both missed the 40% threshold (36%). Small sample — revisit."
+    },
     {
       "version": "1.0",
       "date": "2026-07-13",
@@ -683,7 +689,7 @@
         { "id": "severe_sore_throat", "label": "Severe sore throat", "weight": 2 },
         { "id": "swollen_lymph_nodes", "label": "Swollen neck glands", "weight": 2 },
         { "id": "fever", "label": "Fever", "weight": 2 },
-        { "id": "loss_of_appetite", "label": "Loss of appetite", "weight": 1 },
+        { "id": "loss_of_appetite", "label": "Loss of appetite", "weight": 2 },
         { "id": "body_aches", "label": "Body aches", "weight": 1 }
       ],
       "condition_red_flags": [
