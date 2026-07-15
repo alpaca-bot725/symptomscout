@@ -11,8 +11,9 @@
  *   2. DERIVED FLAGS — follow-up answers (fever, duration, injury) are turned
  *      into synthetic symptom ids so the JSON red-flag rules can react to them.
  *   3. SCORING — every condition gets a weighted match score.
- *   4. ESCALATION — condition-level red flags and answer-based modifiers can
- *      only ever RAISE urgency, never lower it.
+ *   4. ESCALATION — condition-level red flags and answer-based modifiers
+ *      (including per-symptom severity ratings) can only ever RAISE urgency,
+ *      never lower it. Severity never changes match scoring.
  */
 
 import kb from '../data/conditions.json'
@@ -128,6 +129,30 @@ export function checkGlobalRedFlags(reportedIds) {
 }
 
 /* ------------------------------------------------------------------ */
+/* Per-symptom severity (urgency messaging only — never scoring)       */
+/* ------------------------------------------------------------------ */
+
+// Symptoms living in a region marked sensitive:true in the JSON (chest, head).
+const SENSITIVE_SYMPTOM_IDS = new Set(
+  kb.body_regions.filter((r) => r.sensitive).flatMap((r) => r.symptoms),
+)
+
+export const SEVERE_SYMPTOM_THRESHOLD = 8
+const DEFAULT_SYMPTOM_SEVERITY = 5
+
+/**
+ * The user's selected symptoms that are BOTH in a sensitive region AND rated
+ * >= 8/10. An unrated symptom defaults to 5, so users who skip the rating get
+ * exactly the pre-severity behavior. Sorted worst-first.
+ */
+function severeSensitiveSymptoms(selectedIds, symptomSeverity = {}) {
+  return [...selectedIds]
+    .map((id) => ({ id, severity: symptomSeverity[id] ?? DEFAULT_SYMPTOM_SEVERITY }))
+    .filter((s) => SENSITIVE_SYMPTOM_IDS.has(s.id) && s.severity >= SEVERE_SYMPTOM_THRESHOLD)
+    .sort((a, b) => b.severity - a.severity)
+}
+
+/* ------------------------------------------------------------------ */
 /* Step 2 — derived flags from follow-up answers                       */
 /* ------------------------------------------------------------------ */
 
@@ -182,6 +207,11 @@ export function deriveFlags(answers) {
  *      only explicit red flags may declare an emergency).
  *   c) age under 2 or 65+ escalates one level (same cap): the very young
  *      and older adults deteriorate faster and warrant earlier review.
+ *   d) any selected symptom in a sensitive region (sensitive:true in the
+ *      JSON: chest, head) rated >= 8/10 escalates one level (same cap) and
+ *      surfaces a "consider seeking care" advisory. Per-symptom severity
+ *      NEVER multiplies into match scores and NEVER touches red-flag logic —
+ *      a red flag at severity 1 is still a red flag.
  *
  * Results are ranked by percent (tie-break: raw score), top 5 returned.
  */
@@ -194,6 +224,19 @@ export function runTriage(selectedIds, answers) {
 
   // Step 2: fold follow-up answers into the reported symptom set.
   const reported = new Set([...selectedIds, ...deriveFlags(answers)])
+
+  // Per-symptom severity: computed once, applied as modifier (d) below.
+  // Uses selectedIds (real user picks), not derived flags — only symptoms the
+  // user rated can qualify.
+  const severeSensitive = severeSensitiveSymptoms(selectedIds, answers.symptomSeverity)
+  const severityAdvisory =
+    severeSensitive.length > 0
+      ? {
+          id: severeSensitive[0].id,
+          label: symptomLabel(severeSensitive[0].id),
+          severity: severeSensitive[0].severity,
+        }
+      : null
 
   const results = []
   for (const condition of kb.conditions) {
@@ -235,6 +278,13 @@ export function runTriage(selectedIds, answers) {
       if (bumped !== urgency) modifiers.push(`age ${answers.age}`)
       urgency = bumped
     }
+    // (d) severe symptom in a sensitive region — one bump total, same cap.
+    if (severityAdvisory && urgency !== 'emergency') {
+      const bumped = bumpOne(urgency)
+      if (bumped !== urgency)
+        modifiers.push(`${severityAdvisory.label} rated ${severityAdvisory.severity}/10`)
+      urgency = bumped
+    }
 
     results.push({
       condition,
@@ -261,5 +311,7 @@ export function runTriage(selectedIds, answers) {
   // plausible is serious, the user should hear about it.
   const overallUrgency = top.reduce((acc, r) => maxUrgency(acc, r.urgency), 'self_care')
 
-  return { emergency: false, redFlags: [], results: top, overallUrgency }
+  // severityAdvisory lets the results screen show a "consider seeking care"
+  // note even when no condition matched (messaging only — no urgency value).
+  return { emergency: false, redFlags: [], results: top, overallUrgency, severityAdvisory }
 }

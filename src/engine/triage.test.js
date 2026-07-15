@@ -166,6 +166,86 @@ describe('derived flags translate answers into symptom ids', () => {
   })
 })
 
+describe('per-symptom severity (v1.2): urgency messaging only', () => {
+  // Mono set (all non-sensitive regions) + chest_tightness (chest = sensitive).
+  const ids = [...monoSymptomIds, 'chest_tightness']
+  const run = (symptomSeverity, extraAnswers = {}) =>
+    runTriage(ids, { ...baseAnswers, ...extraAnswers, symptomSeverity })
+  const monoOf = (out) => out.results.find((r) => r.condition.id === 'mononucleosis')
+  const rank = (u) => URGENCY_ORDER.indexOf(u)
+
+  it('a red flag at severity 1 is still a red flag — severity never routes around the override', () => {
+    const out = runTriage([...monoSymptomIds, 'chest_pain_pressure'], {
+      ...baseAnswers,
+      symptomSeverity: { chest_pain_pressure: 1 },
+    })
+    expect(out.emergency).toBe(true)
+    expect(out.overallUrgency).toBe('emergency')
+    expect(out.results).toEqual([])
+  })
+
+  it('no severity map and an empty map behave identically to the pre-severity engine', () => {
+    const baseline = runTriage(ids, baseAnswers)
+    expect(run({})).toEqual(baseline)
+    expect(baseline.severityAdvisory).toBeNull()
+  })
+
+  it('all ratings below 8 change nothing (unrated symptoms default to 5)', () => {
+    const baseline = runTriage(ids, baseAnswers)
+    const allOnes = Object.fromEntries(ids.map((id) => [id, 1]))
+    expect(run(allOnes)).toEqual(baseline)
+  })
+
+  it('severity can NEVER lower any urgency below the baseline output', () => {
+    const baseline = runTriage(ids, baseAnswers)
+    const maps = [
+      Object.fromEntries(ids.map((id) => [id, 1])),
+      Object.fromEntries(ids.map((id) => [id, 10])),
+      { chest_tightness: 8 },
+      { body_aches: 10, chest_tightness: 1 },
+    ]
+    for (const m of maps) {
+      const out = run(m)
+      for (const r of out.results) {
+        const base = baseline.results.find((b) => b.condition.id === r.condition.id)
+        if (base) {
+          expect(rank(r.urgency), `urgency for ${r.condition.id}`).toBeGreaterThanOrEqual(rank(base.urgency))
+        }
+      }
+      expect(rank(out.overallUrgency)).toBeGreaterThanOrEqual(rank(baseline.overallUrgency))
+    }
+  })
+
+  it('8+ on a sensitive-region symptom escalates one tier and surfaces the advisory', () => {
+    const out = run({ chest_tightness: 9 })
+    expect(monoOf(out).urgency).toBe('urgent_care') // see_doctor + 1
+    expect(monoOf(out).modifiers.join(' ')).toMatch(/9\/10/)
+    expect(out.severityAdvisory).toMatchObject({ id: 'chest_tightness', severity: 9 })
+  })
+
+  it('10/10 on a NON-sensitive symptom does not escalate', () => {
+    const out = run({ body_aches: 10 })
+    expect(monoOf(out).urgency).toBe(mono.urgency)
+    expect(out.severityAdvisory).toBeNull()
+  })
+
+  it('severity bumps stack-cap at urgent_care — never emergency from ratings alone', () => {
+    const out = run(Object.fromEntries(ids.map((id) => [id, 10])), { severity: 10, age: 80 })
+    for (const r of out.results) {
+      expect(r.urgency === 'emergency' && r.triggeredFlags.length === 0, `${r.condition.id} reached emergency without a red flag`).toBe(false)
+    }
+    expect(monoOf(out).urgency).toBe('urgent_care')
+  })
+
+  it('scoring is untouched — scores and percents are identical whatever the ratings say', () => {
+    const baseline = runTriage(ids, baseAnswers)
+    const out = run(Object.fromEntries(ids.map((id) => [id, 10])))
+    expect(out.results.map((r) => [r.condition.id, r.score, r.percent])).toEqual(
+      baseline.results.map((r) => [r.condition.id, r.score, r.percent]),
+    )
+  })
+})
+
 describe('urgency ladder', () => {
   it('keeps the four levels in severity order — comparisons depend on the indexes', () => {
     expect(URGENCY_ORDER).toEqual(['self_care', 'see_doctor', 'urgent_care', 'emergency'])

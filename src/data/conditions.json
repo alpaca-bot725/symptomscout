@@ -1,6 +1,12 @@
 {
-  "version": "1.1",
+  "version": "1.2",
   "changelog": [
+    {
+      "version": "1.2",
+      "date": "2026-07-15",
+      "change": "Added per-symptom severity (1-10) support: marked head and chest body regions as sensitive. Severity >= 8 on a sensitive-region symptom escalates urgency one tier (capped at urgent_care). Severity never affects condition scoring or red-flag logic.",
+      "evidence": "Feature decision, not outcome data. Sensitive regions chosen because chest/head symptoms have the worst downside when under-triaged."
+    },
     {
       "version": "1.1",
       "date": "2026-07-15",
@@ -20,7 +26,8 @@
     "weight_guide": "3 = hallmark symptom (strongly suggests this condition), 2 = common symptom, 1 = supporting symptom (nonspecific)",
     "urgency_levels": ["self_care", "see_doctor", "urgent_care", "emergency"],
     "matching_rule": "A condition should only appear in results if the user reports at least one weight-3 symptom for it OR total score >= 40% of max_score",
-    "body_regions_note": "body_regions drive the intake UI only. Each region lists symptom ids; labels are resolved from the conditions that use them. A symptom used by a condition but not listed in any region is automatically shown under 'General / Whole body' by the app, so new conditions can be added without touching code.",
+    "sensitive_regions_note": "A body region with sensitive:true means: any reported symptom from that region rated >= 8/10 severity escalates result urgency one tier (capped at urgent_care, like all answer-based bumps). Severity NEVER changes match scoring and NEVER touches red-flag logic.",
+    "body_regions_note": "body_regions drive the intake UI (plus the sensitive flag above). Each region lists symptom ids; labels are resolved from the conditions that use them. A symptom used by a condition but not listed in any region is automatically shown under 'General / Whole body' by the app, so new conditions can be added without touching code.",
     "derived_flags_note": "Some condition_red_flags ids are not user-selectable symptoms; the engine derives them from follow-up answers: fever / fever_over_104 (fever question), symptoms_over_3_days, symptoms_over_10_days, cough_over_3_weeks (duration question), recent_injury (injury question); head_injury_recent stays a selectable symptom under the Head region. Red flags that are never reported are still shown on the results screen as 'seek care immediately if...' warnings."
   },
 
@@ -72,6 +79,7 @@
       "id": "head",
       "label": "Head & Neurological",
       "icon": "🧠",
+      "sensitive": true,
       "symptoms": ["headache", "throbbing_headache_one_side", "band_like_pressure", "both_sides", "light_sensitivity", "sound_sensitivity", "visual_aura", "worse_with_activity", "not_worse_with_activity", "neck_shoulder_tightness", "dizziness", "dizziness_standing", "memory_trouble", "confusion_foggy", "head_injury_recent"]
     },
     {
@@ -84,6 +92,7 @@
       "id": "chest",
       "label": "Chest & Breathing",
       "icon": "🫁",
+      "sensitive": true,
       "symptoms": ["dry_cough", "mild_cough", "persistent_cough", "mucus_cough", "chest_soreness_cough", "sharp_chest_pain_breathing", "wheezing", "chest_tightness", "shortness_breath_exertion", "shortness_of_breath_anxiety", "night_cough", "rapid_breathing", "racing_heart", "heartburn", "burning_chest_after_meals", "recent_cold"]
     },
     {

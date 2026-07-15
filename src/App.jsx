@@ -28,6 +28,8 @@ export default function App() {
   const [redFlagSelection, setRedFlagSelection] = useState(new Set())
   const [region, setRegion] = useState(null)
   const [symptoms, setSymptoms] = useState(new Set())
+  // Per-symptom severity ratings, { symptomId: 1-10 }. Unrated = 5.
+  const [symptomSeverity, setSymptomSeverity] = useState({})
   const [triage, setTriage] = useState(null)
 
   const toggle = (setter) => (id) =>
@@ -37,11 +39,23 @@ export default function App() {
       return next
     })
 
+  const toggleSymptom = (id) => {
+    // Deselecting a symptom also forgets its rating.
+    if (symptoms.has(id)) {
+      setSymptomSeverity(({ [id]: _removed, ...rest }) => rest)
+    }
+    toggle(setSymptoms)(id)
+  }
+
+  const rateSymptom = (id, value) =>
+    setSymptomSeverity((prev) => ({ ...prev, [id]: value }))
+
   const startOver = () => {
     setStep('home')
     setRedFlagSelection(new Set())
     setRegion(null)
     setSymptoms(new Set())
+    setSymptomSeverity({})
     setTriage(null)
   }
 
@@ -60,7 +74,7 @@ export default function App() {
   }
 
   const finishIntake = (answers) => {
-    const result = runTriage([...symptoms], answers)
+    const result = runTriage([...symptoms], { ...answers, symptomSeverity })
     setTriage(result)
     const symptomIds = [...symptoms]
     saveEpisode({
@@ -69,6 +83,7 @@ export default function App() {
       // ids power the /insights miss analysis; labels stay for display/export
       symptomIds,
       symptomLabels: symptomIds.map((id) => symptomLabel(id)),
+      symptomSeverity,
       answers,
       topResults: result.results.map((r) => ({
         id: r.condition.id,
@@ -147,7 +162,9 @@ export default function App() {
               <SymptomPicker
                 region={region}
                 selected={symptoms}
-                onToggle={toggle(setSymptoms)}
+                severity={symptomSeverity}
+                onSeverityChange={rateSymptom}
+                onToggle={toggleSymptom}
                 onBack={() => setStep('region')}
                 onContinue={() => setStep('followups')}
               />

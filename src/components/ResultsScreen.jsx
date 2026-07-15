@@ -11,8 +11,22 @@ const URGENCY_STYLES = {
  * Results: overall urgency banner + top condition matches, each with
  * plain-language reasoning (which symptoms matched and their weight).
  */
+/**
+ * "Consider seeking care" note shown when a chest/head symptom was rated 8+.
+ * Messaging only — the urgency math for this lives in the engine.
+ */
+function SeverityAdvisory({ advisory }) {
+  return (
+    <div className="rounded-2xl bg-orange-50 p-4 text-sm leading-relaxed text-orange-900 ring-1 ring-orange-200">
+      You rated <strong>{advisory.label.toLowerCase()}</strong> at{' '}
+      <strong>{advisory.severity}/10</strong>. Intense chest or head symptoms are
+      worth taking seriously — consider seeking care sooner rather than waiting.
+    </div>
+  )
+}
+
 export default function ResultsScreen({ triage, onStartOver }) {
-  const { results, overallUrgency } = triage
+  const { results, overallUrgency, severityAdvisory } = triage
   const banner = URGENCY_STYLES[overallUrgency]
 
   // With zero matches the engine's overallUrgency defaults to self_care, but
@@ -30,6 +44,7 @@ export default function ResultsScreen({ triage, onStartOver }) {
             unwell, get worse, or symptoms persist, see a healthcare professional.
           </p>
         </div>
+        {severityAdvisory && <SeverityAdvisory advisory={severityAdvisory} />}
         <button
           onClick={onStartOver}
           className="w-full min-h-13 rounded-2xl bg-blue-600 px-4 py-3.5 font-semibold text-white shadow-md active:bg-blue-700"
@@ -47,6 +62,8 @@ export default function ResultsScreen({ triage, onStartOver }) {
         <h2 className="mt-1 text-xl font-bold">{URGENCY_INFO[overallUrgency].label}</h2>
         <p className="mt-1 text-sm">{URGENCY_INFO[overallUrgency].detail}</p>
       </div>
+
+      {severityAdvisory && <SeverityAdvisory advisory={severityAdvisory} />}
 
       {results.map((r, index) => {
         const style = URGENCY_STYLES[r.urgency]

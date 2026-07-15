@@ -83,7 +83,14 @@ export function buildDoctorSummary(history, conditionNameById = {}) {
   for (const ep of history) {
     lines.push(`--- Episode: ${new Date(ep.savedAt).toLocaleString()} ---`)
     lines.push(`Body region: ${ep.regionLabel}`)
-    lines.push(`Symptoms reported: ${ep.symptomLabels.join(', ')}`)
+    // Newer episodes carry per-symptom severity ratings; annotate when present.
+    const sev = ep.symptomSeverity ?? {}
+    const symptomLine = (ep.symptomIds ?? []).length === ep.symptomLabels.length && ep.symptomIds
+      ? ep.symptomIds
+          .map((id, i) => (sev[id] ? `${ep.symptomLabels[i]} (${sev[id]}/10)` : ep.symptomLabels[i]))
+          .join(', ')
+      : ep.symptomLabels.join(', ')
+    lines.push(`Symptoms reported: ${symptomLine}`)
     lines.push(
       `Duration: ${ep.answers.durationDays} day(s) | Severity: ${ep.answers.severity}/10 | Age: ${ep.answers.age} | Fever: ${ep.answers.fever} | Recent injury: ${ep.answers.recentInjury ? 'yes' : 'no'}`,
     )
