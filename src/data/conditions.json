@@ -1,6 +1,12 @@
 {
-  "version": "1.3",
+  "version": "1.4",
   "changelog": [
+    {
+      "version": "1.4",
+      "date": "2026-07-15",
+      "change": "Expanded knowledge base from 30 to 42 conditions (+12). Added: contact_dermatitis, sunburn, shingles, cellulitis (skin); gout, carpal_tunnel, sciatica (muscles/joints); depression, insomnia (mind); vertigo_bppv (head); iron_deficiency_anemia, hypothyroidism (general). Introduced 41 new symptom ids, assigned to their proper body regions (skin/muscles/mind especially were thin). Reused existing ids wherever the symptom was genuinely the same (e.g. insomnia's hallmark reuses trouble_sleeping at weight 3; hypothyroidism reuses infrequent_stools). depression matches the tone/advice format of the existing anxiety entries and leans on the existing suicidal_thoughts global red flag for crisis handling — no new safety logic.",
+      "evidence": "Curation, not outcome data. Prioritized by search frequency and by filling the lightest regions (skin had only 1 condition, mind/muscles/urinary only 2 each). All additive: no existing condition, id, weight, or engine logic changed. Full test suite (now 168 tests, incl. per-condition integrity + escalation-never-lowers property sweep) passes."
+    },
     {
       "version": "1.3",
       "date": "2026-07-15",
@@ -86,7 +92,7 @@
       "label": "Head & Neurological",
       "icon": "🧠",
       "sensitive": true,
-      "symptoms": ["headache", "throbbing_headache_one_side", "band_like_pressure", "both_sides", "light_sensitivity", "sound_sensitivity", "visual_aura", "worse_with_activity", "not_worse_with_activity", "neck_shoulder_tightness", "dizziness", "dizziness_standing", "memory_trouble", "confusion_foggy", "head_injury_recent"]
+      "symptoms": ["headache", "throbbing_headache_one_side", "band_like_pressure", "both_sides", "light_sensitivity", "sound_sensitivity", "visual_aura", "worse_with_activity", "not_worse_with_activity", "neck_shoulder_tightness", "dizziness", "dizziness_standing", "memory_trouble", "confusion_foggy", "head_injury_recent", "spinning_sensation", "vertigo_on_head_movement", "unsteady_walking"]
     },
     {
       "id": "eyes_ears_nose_throat",
@@ -117,25 +123,25 @@
       "id": "skin",
       "label": "Skin & Allergies",
       "icon": "🖐️",
-      "symptoms": ["itchy_raised_welts", "welts_move_around", "swelling_lips_face", "recent_new_food_med", "itchy_skin", "bruising", "symptoms_with_triggers"]
+      "symptoms": ["itchy_raised_welts", "welts_move_around", "swelling_lips_face", "recent_new_food_med", "itchy_skin", "bruising", "symptoms_with_triggers", "red_itchy_rash", "rash_where_contacted", "skin_dryness_flaking", "recent_new_skin_product", "red_painful_skin_sun", "skin_warm_tender", "recent_sun_exposure", "peeling_skin", "painful_rash_one_side", "blisters_grouped", "burning_tingling_before_rash", "red_warm_swollen_skin", "skin_spreading_redness", "skin_tender_touch"]
     },
     {
       "id": "muscles",
       "label": "Muscles, Bones & Joints",
       "icon": "🦴",
-      "symptoms": ["body_aches", "muscle_spasm_back", "low_back_pain_movement", "pain_after_lifting", "stiffness_morning", "pain_better_rest", "ankle_pain_twist", "ankle_swelling", "pain_bearing_weight", "limited_motion", "muscle_cramps", "muscle_tension", "trembling", "tingling_hands"]
+      "symptoms": ["body_aches", "muscle_spasm_back", "low_back_pain_movement", "pain_after_lifting", "stiffness_morning", "pain_better_rest", "ankle_pain_twist", "ankle_swelling", "pain_bearing_weight", "limited_motion", "muscle_cramps", "muscle_tension", "trembling", "tingling_hands", "sudden_joint_pain_big_toe", "joint_red_hot_swollen", "joint_pain_night_onset", "hand_numbness_tingling", "numbness_worse_at_night", "weak_grip", "wrist_pain_repetitive", "pain_radiating_down_leg", "leg_numbness_tingling", "pain_worse_sitting"]
     },
     {
       "id": "mind",
       "label": "Mind & Mood",
       "icon": "🧘",
-      "symptoms": ["sudden_intense_fear", "feeling_unreal", "peaked_within_10_min", "excessive_worry_months", "restlessness", "trouble_sleeping", "irritability", "difficulty_concentrating", "symptoms_with_stress"]
+      "symptoms": ["sudden_intense_fear", "feeling_unreal", "peaked_within_10_min", "excessive_worry_months", "restlessness", "trouble_sleeping", "irritability", "difficulty_concentrating", "symptoms_with_stress", "low_mood_persistent", "loss_of_interest", "hopelessness", "appetite_change", "lying_awake", "daytime_sleepiness"]
     },
     {
       "id": "general",
       "label": "General / Whole Body",
       "icon": "🌡️",
-      "symptoms": ["fever", "low_fever", "no_fever", "chills", "fatigue", "fatigue_sudden", "severe_fatigue_weeks", "gradual_onset", "extreme_thirst", "dry_mouth", "heavy_sweating_heat", "weakness_after_heat", "history_asthma", "unintended_weight_loss"]
+      "symptoms": ["fever", "low_fever", "no_fever", "chills", "fatigue", "fatigue_sudden", "severe_fatigue_weeks", "gradual_onset", "extreme_thirst", "dry_mouth", "heavy_sweating_heat", "weakness_after_heat", "history_asthma", "unintended_weight_loss", "pale_skin", "fatigue_on_exertion", "cold_hands_feet", "brittle_nails", "cold_intolerance", "unexplained_weight_gain", "dry_skin_hair", "slowed_thinking"]
     }
   ],
 
@@ -756,6 +762,218 @@
       "urgency": "self_care",
       "advice": "Get to a cool place NOW, loosen clothing, sip cool fluids, and put cool wet cloths on skin. You should improve within an hour. Confusion or hot DRY skin means heat stroke — call 911 and cool aggressively while waiting.",
       "typical_duration_days": "0.5-1 with cooling"
+    },
+    {
+      "id": "contact_dermatitis",
+      "name": "Contact Dermatitis",
+      "description": "An itchy red rash where the skin touched an irritant or allergen — soaps, metals, cosmetics, or plants like poison ivy.",
+      "symptoms": [
+        { "id": "red_itchy_rash", "label": "Red, itchy rash", "weight": 3 },
+        { "id": "rash_where_contacted", "label": "Rash where skin touched something", "weight": 3 },
+        { "id": "itchy_skin", "label": "Intense itching", "weight": 2 },
+        { "id": "skin_dryness_flaking", "label": "Dry, flaky, or cracked skin", "weight": 2 },
+        { "id": "recent_new_skin_product", "label": "Recently used a new soap, lotion, cosmetic, or plant", "weight": 2 }
+      ],
+      "condition_red_flags": [
+        { "id": "rash_with_fever_or_pus", "escalate_to": "see_doctor" }
+      ],
+      "urgency": "self_care",
+      "advice": "Wash the area to remove the irritant, then use a cool compress and OTC hydrocortisone or an antihistamine for itch. The key fix is figuring out what touched the skin and avoiding it. Spreading redness, pus, or fever suggests infection — see a doctor.",
+      "typical_duration_days": "2-21 (until the irritant is removed)"
+    },
+    {
+      "id": "sunburn",
+      "name": "Sunburn",
+      "description": "Skin damage from too much ultraviolet light — red, hot, painful skin that shows up hours after sun exposure.",
+      "symptoms": [
+        { "id": "red_painful_skin_sun", "label": "Red, painful skin after sun exposure", "weight": 3 },
+        { "id": "skin_warm_tender", "label": "Skin warm and tender to the touch", "weight": 2 },
+        { "id": "recent_sun_exposure", "label": "Recent time in the sun without protection", "weight": 2 },
+        { "id": "peeling_skin", "label": "Skin peeling a few days later", "weight": 1 },
+        { "id": "itchy_skin", "label": "Intense itching", "weight": 1 }
+      ],
+      "condition_red_flags": [
+        { "id": "blistering_with_fever_chills", "escalate_to": "see_doctor" }
+      ],
+      "urgency": "self_care",
+      "advice": "Cool the skin with a damp cloth or cool bath, moisturize with aloe, drink extra water, and take ibuprofen for pain. Leave blisters intact. Widespread blistering with fever, chills, or nausea is sun poisoning — see a doctor.",
+      "typical_duration_days": "3-7"
+    },
+    {
+      "id": "shingles",
+      "name": "Shingles (Herpes Zoster)",
+      "description": "A reactivation of the chickenpox virus that causes a painful blistering rash, usually in a single band on one side of the body.",
+      "symptoms": [
+        { "id": "painful_rash_one_side", "label": "Painful rash or blisters on one side of the body", "weight": 3 },
+        { "id": "blisters_grouped", "label": "Grouped blisters in a band or stripe", "weight": 3 },
+        { "id": "burning_tingling_before_rash", "label": "Burning or tingling before the rash appeared", "weight": 2 },
+        { "id": "itchy_skin", "label": "Intense itching", "weight": 1 }
+      ],
+      "condition_red_flags": [
+        { "id": "rash_near_eye", "escalate_to": "urgent_care" }
+      ],
+      "urgency": "see_doctor",
+      "advice": "See a doctor quickly — antiviral medication works best within 72 hours of the rash appearing and can shorten the illness. Keep the rash covered; it can spread chickenpox to people who've never had it. A rash near the eye or on the tip of the nose can threaten vision — get seen today.",
+      "typical_duration_days": "14-28"
+    },
+    {
+      "id": "cellulitis",
+      "name": "Cellulitis (Skin Infection)",
+      "description": "A bacterial infection of the deeper layers of skin that makes an area red, warm, swollen, and tender. It can spread quickly and needs antibiotics.",
+      "symptoms": [
+        { "id": "red_warm_swollen_skin", "label": "Red, warm, swollen patch of skin", "weight": 3 },
+        { "id": "skin_spreading_redness", "label": "Redness that is spreading or growing", "weight": 2 },
+        { "id": "skin_tender_touch", "label": "Skin painful or tender to the touch", "weight": 2 },
+        { "id": "fever", "label": "Fever over 100.4°F", "weight": 2 }
+      ],
+      "condition_red_flags": [
+        { "id": "red_streaks_from_area", "escalate_to": "emergency" },
+        { "id": "spreading_redness_with_fever", "escalate_to": "urgent_care" }
+      ],
+      "urgency": "urgent_care",
+      "advice": "Cellulitis needs antibiotics — get seen today, and trace the edge of the redness with a pen so you can tell if it grows. Red streaks spreading from the area, high fever, or the patch expanding quickly can mean the infection is spreading through the body: go to the ER.",
+      "typical_duration_days": "7-14 with antibiotics"
+    },
+    {
+      "id": "gout",
+      "name": "Gout",
+      "description": "A form of arthritis caused by uric acid crystals in a joint — most often the big toe — bringing on sudden, intense pain, redness, and swelling.",
+      "symptoms": [
+        { "id": "sudden_joint_pain_big_toe", "label": "Sudden severe pain in one joint (often the big toe)", "weight": 3 },
+        { "id": "joint_red_hot_swollen", "label": "Joint red, hot, and swollen", "weight": 3 },
+        { "id": "joint_pain_night_onset", "label": "Pain that woke you or started at night", "weight": 2 }
+      ],
+      "condition_red_flags": [
+        { "id": "joint_pain_with_fever", "escalate_to": "urgent_care" }
+      ],
+      "urgency": "see_doctor",
+      "advice": "Rest and elevate the joint, use ice, and take an anti-inflammatory like ibuprofen (not aspirin). See a doctor to confirm gout and discuss medication — repeated attacks can damage the joint. A hot, swollen joint WITH fever could be a joint infection instead: get seen today.",
+      "typical_duration_days": "3-14"
+    },
+    {
+      "id": "carpal_tunnel",
+      "name": "Carpal Tunnel Syndrome",
+      "description": "Compression of a nerve at the wrist, causing numbness, tingling, and weakness in the thumb-side fingers — often from repetitive hand use.",
+      "symptoms": [
+        { "id": "hand_numbness_tingling", "label": "Numbness or tingling in the thumb, index, and middle fingers", "weight": 3 },
+        { "id": "numbness_worse_at_night", "label": "Numbness worse at night or on waking", "weight": 2 },
+        { "id": "weak_grip", "label": "Weak grip or dropping things", "weight": 2 },
+        { "id": "wrist_pain_repetitive", "label": "Wrist pain after repetitive hand use", "weight": 2 },
+        { "id": "tingling_hands", "label": "Tingling in hands or face", "weight": 1 }
+      ],
+      "urgency": "self_care",
+      "advice": "Rest the hand, take breaks from repetitive tasks, and try a wrist splint at night to keep the wrist straight. If numbness is constant, the muscle at the base of the thumb is shrinking, or symptoms drag on for weeks, see a doctor — untreated nerve compression can become permanent.",
+      "typical_duration_days": "weeks to months"
+    },
+    {
+      "id": "sciatica",
+      "name": "Sciatica",
+      "description": "Irritation of the sciatic nerve, usually from a herniated disc, causing sharp pain that radiates from the lower back down one leg.",
+      "symptoms": [
+        { "id": "pain_radiating_down_leg", "label": "Sharp pain radiating from the lower back down one leg", "weight": 3 },
+        { "id": "leg_numbness_tingling", "label": "Numbness or tingling down the leg", "weight": 2 },
+        { "id": "pain_worse_sitting", "label": "Pain worse when sitting or bending", "weight": 2 },
+        { "id": "low_back_pain_movement", "label": "Low back pain that worsens with movement", "weight": 2 }
+      ],
+      "condition_red_flags": [
+        { "id": "loss_of_bladder_bowel_control", "escalate_to": "emergency" },
+        { "id": "numbness_inner_thighs_groin", "escalate_to": "emergency" },
+        { "id": "progressive_leg_weakness", "escalate_to": "urgent_care" }
+      ],
+      "urgency": "see_doctor",
+      "advice": "Stay gently active rather than on bed rest, use heat or ice, and take an anti-inflammatory for pain — most sciatica eases within a few weeks. Loss of bladder or bowel control, or numbness in the inner thighs and groin, is an emergency (cauda equina syndrome): call 911.",
+      "typical_duration_days": "14-42"
+    },
+    {
+      "id": "depression",
+      "name": "Depression",
+      "description": "Persistent low mood or loss of interest most of the day, nearly every day, for at least two weeks, along with changes in sleep, energy, and concentration.",
+      "symptoms": [
+        { "id": "low_mood_persistent", "label": "Low or sad mood most of the day, nearly every day", "weight": 3 },
+        { "id": "loss_of_interest", "label": "Loss of interest or pleasure in things", "weight": 3 },
+        { "id": "hopelessness", "label": "Feelings of hopelessness or worthlessness", "weight": 2 },
+        { "id": "trouble_sleeping", "label": "Trouble falling or staying asleep", "weight": 2 },
+        { "id": "fatigue", "label": "Fatigue", "weight": 2 },
+        { "id": "difficulty_concentrating", "label": "Difficulty concentrating", "weight": 2 },
+        { "id": "appetite_change", "label": "Change in appetite or weight", "weight": 1 }
+      ],
+      "condition_red_flags": [
+        { "id": "suicidal_thoughts", "escalate_to": "emergency" }
+      ],
+      "urgency": "see_doctor",
+      "advice": "Depression this persistent deserves real help, and treatment works: therapy (especially CBT), lifestyle changes, and sometimes medication. Start with your doctor or campus counseling. If you ever have thoughts of self-harm, call or text 988.",
+      "typical_duration_days": "chronic, very treatable"
+    },
+    {
+      "id": "insomnia",
+      "name": "Insomnia",
+      "description": "Regular difficulty falling or staying asleep despite the chance to sleep, leaving you tired and foggy during the day.",
+      "symptoms": [
+        { "id": "trouble_sleeping", "label": "Trouble falling or staying asleep", "weight": 3 },
+        { "id": "lying_awake", "label": "Lying awake for a long time at night", "weight": 2 },
+        { "id": "daytime_sleepiness", "label": "Daytime sleepiness or low energy", "weight": 2 },
+        { "id": "difficulty_concentrating", "label": "Difficulty concentrating", "weight": 2 },
+        { "id": "fatigue", "label": "Fatigue", "weight": 1 },
+        { "id": "irritability", "label": "Irritability", "weight": 1 }
+      ],
+      "urgency": "self_care",
+      "advice": "Keep a consistent sleep and wake time, cut screens and caffeine in the evening, and get out of bed if you can't sleep after 20 minutes. If poor sleep lasts more than a few weeks or wrecks your days, talk to a doctor — CBT for insomnia works better than sleeping pills long-term.",
+      "typical_duration_days": "varies; chronic if untreated"
+    },
+    {
+      "id": "vertigo_bppv",
+      "name": "Vertigo (BPPV)",
+      "description": "A spinning sensation set off by changes in head position, caused by loose crystals in the inner ear. Intense but not dangerous, and usually brief.",
+      "symptoms": [
+        { "id": "spinning_sensation", "label": "A spinning sensation (the room feels like it is moving)", "weight": 3 },
+        { "id": "vertigo_on_head_movement", "label": "Spinning triggered by moving or turning your head", "weight": 3 },
+        { "id": "unsteady_walking", "label": "Unsteady or off-balance when walking", "weight": 2 },
+        { "id": "nausea", "label": "Nausea", "weight": 2 }
+      ],
+      "condition_red_flags": [
+        { "id": "vertigo_with_double_vision_or_weakness", "escalate_to": "urgent_care" },
+        { "id": "sudden_hearing_loss", "escalate_to": "urgent_care" }
+      ],
+      "urgency": "see_doctor",
+      "advice": "Move slowly when changing position and sit down when the spinning hits. A doctor can confirm BPPV and teach repositioning moves (like the Epley maneuver) that resolve it. Vertigo with double vision, slurred speech, weakness, or sudden hearing loss can signal a stroke or other serious cause — get seen today.",
+      "typical_duration_days": "days to weeks (each spell seconds to minutes)"
+    },
+    {
+      "id": "iron_deficiency_anemia",
+      "name": "Iron-Deficiency Anemia",
+      "description": "Too few healthy red blood cells because the body is low on iron, so tissues get less oxygen — leaving you tired, pale, and short of breath.",
+      "symptoms": [
+        { "id": "pale_skin", "label": "Unusual paleness of skin, lips, or nail beds", "weight": 3 },
+        { "id": "fatigue_on_exertion", "label": "Tiredness or breathlessness with light activity", "weight": 3 },
+        { "id": "fatigue", "label": "Fatigue", "weight": 2 },
+        { "id": "dizziness_standing", "label": "Dizziness", "weight": 2 },
+        { "id": "cold_hands_feet", "label": "Cold hands and feet", "weight": 2 },
+        { "id": "racing_heart", "label": "Racing or pounding heart", "weight": 1 },
+        { "id": "brittle_nails", "label": "Brittle nails or thinning hair", "weight": 1 }
+      ],
+      "condition_red_flags": [
+        { "id": "black_or_bloody_stools", "escalate_to": "urgent_care" },
+        { "id": "chest_pain_pressure", "escalate_to": "emergency" }
+      ],
+      "urgency": "see_doctor",
+      "advice": "See a doctor for a simple blood test — anemia is easy to confirm and usually treated with iron supplements plus iron-rich foods. Just as important is finding WHY iron is low. Black or bloody stools can mean internal bleeding: get seen today.",
+      "typical_duration_days": "improves over weeks to months with treatment"
+    },
+    {
+      "id": "hypothyroidism",
+      "name": "Hypothyroidism (Underactive Thyroid)",
+      "description": "An underactive thyroid gland that slows the body's metabolism, causing fatigue, weight gain, cold sensitivity, and sluggish thinking.",
+      "symptoms": [
+        { "id": "cold_intolerance", "label": "Feeling cold when others do not", "weight": 3 },
+        { "id": "unexplained_weight_gain", "label": "Unexplained weight gain", "weight": 3 },
+        { "id": "dry_skin_hair", "label": "Dry skin or thinning hair", "weight": 2 },
+        { "id": "slowed_thinking", "label": "Sluggish thinking or forgetfulness", "weight": 2 },
+        { "id": "fatigue", "label": "Fatigue", "weight": 2 },
+        { "id": "infrequent_stools", "label": "Fewer than 3 bowel movements a week", "weight": 1 }
+      ],
+      "urgency": "see_doctor",
+      "advice": "See a doctor for a thyroid blood test (TSH) — hypothyroidism is common and easily treated with a daily thyroid hormone pill. Symptoms come on so gradually they are easy to dismiss, so it is worth checking if several of these fit.",
+      "typical_duration_days": "chronic, managed with daily medication"
     }
   ]
 }
