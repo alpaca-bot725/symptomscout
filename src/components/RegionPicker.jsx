@@ -5,8 +5,8 @@ export default function RegionPicker({ onSelect }) {
   return (
     <div className="space-y-4">
       <header>
-        <h2 className="text-xl font-bold text-slate-900">Where is the problem?</h2>
-        <p className="mt-1 text-sm text-slate-600">
+        <h2 className="text-xl font-bold text-slate-900 dark:text-slate-100">Where is the problem?</h2>
+        <p className="mt-1 text-sm text-slate-600 dark:text-slate-300">
           Pick the area that fits best — you can add symptoms from anywhere on the next step.
         </p>
       </header>
@@ -15,10 +15,10 @@ export default function RegionPicker({ onSelect }) {
           <button
             key={region.id}
             onClick={() => onSelect(region)}
-            className="flex min-h-24 flex-col items-center justify-center gap-1.5 rounded-2xl bg-white p-3 text-center shadow-sm ring-1 ring-slate-200 transition active:bg-blue-50 active:ring-blue-300"
+            className="flex min-h-24 flex-col items-center justify-center gap-1.5 rounded-2xl bg-white p-3 text-center shadow-sm ring-1 ring-slate-200 transition active:bg-blue-50 active:ring-blue-300 dark:bg-slate-800 dark:ring-slate-700 dark:active:bg-blue-950/40 dark:active:ring-blue-800"
           >
             <span className="text-3xl" aria-hidden="true">{region.icon}</span>
-            <span className="text-sm font-semibold leading-tight text-slate-800">{region.label}</span>
+            <span className="text-sm font-semibold leading-tight text-slate-800 dark:text-slate-100">{region.label}</span>
           </button>
         ))}
       </div>

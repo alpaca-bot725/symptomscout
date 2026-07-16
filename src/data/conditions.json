@@ -1,6 +1,12 @@
 {
-  "version": "1.4",
+  "version": "1.5",
   "changelog": [
+    {
+      "version": "1.5",
+      "date": "2026-07-15",
+      "change": "UI polish release (no knowledge-base or engine changes): added a persistent dark-mode toggle (Tailwind 4 @custom-variant, system-preference default, localStorage-persisted, no-flash init) themed across every screen including the emergency screen and /insights; added smooth screen transitions (directional CSS slides), a staggered result-card reveal, pop-in for the emergency banner and outcome form, and a subtle heartbeat animation on the logo. All animations respect prefers-reduced-motion. Also removed two dead body-region entries (blood_in_stool_vomit, unintended_weight_loss) that no condition used.",
+      "evidence": "Frontend-only. All 168 engine tests still pass; the version is bumped so the footer and /insights reflect the release."
+    },
     {
       "version": "1.4",
       "date": "2026-07-15",

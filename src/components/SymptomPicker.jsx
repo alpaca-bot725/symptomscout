@@ -8,10 +8,10 @@ import { getRegions } from '../engine/triage'
  */
 function SeverityScale({ symptom, value, onChange }) {
   return (
-    <div className="w-full rounded-xl bg-blue-50/70 px-3 py-2 ring-1 ring-blue-100">
-      <div className="flex items-center justify-between text-xs text-slate-600">
+    <div className="w-full rounded-xl bg-blue-50/70 px-3 py-2 ring-1 ring-blue-100 dark:bg-blue-500/10 dark:ring-blue-900/50">
+      <div className="flex items-center justify-between text-xs text-slate-600 dark:text-slate-300">
         <span className="font-medium">How bad is “{symptom.label}”?</span>
-        <span className="text-slate-400">1 annoying · 10 agonizing</span>
+        <span className="text-slate-400 dark:text-slate-500">1 annoying · 10 agonizing</span>
       </div>
       <div className="mt-1.5 grid grid-cols-10 gap-1" role="radiogroup" aria-label={`Severity for ${symptom.label}`}>
         {Array.from({ length: 10 }, (_, i) => i + 1).map((n) => (
@@ -24,9 +24,9 @@ function SeverityScale({ symptom, value, onChange }) {
             className={`min-h-11 rounded-lg text-sm font-semibold transition ${
               n === value
                 ? n >= 8
-                  ? 'bg-orange-600 text-white'
-                  : 'bg-blue-600 text-white'
-                : 'bg-white text-slate-600 ring-1 ring-slate-200 active:bg-blue-100'
+                  ? 'bg-orange-600 text-white dark:bg-orange-500'
+                  : 'bg-blue-600 text-white dark:bg-blue-500'
+                : 'bg-white text-slate-600 ring-1 ring-slate-200 active:bg-blue-100 dark:bg-slate-800 dark:text-slate-300 dark:ring-slate-700 dark:active:bg-slate-700'
             }`}
           >
             {n}
@@ -66,12 +66,12 @@ export default function SymptomPicker({ region, selected, severity, onSeverityCh
     <div className="space-y-4">
       <header className="flex items-start justify-between gap-2">
         <div>
-          <h2 className="text-xl font-bold text-slate-900">
+          <h2 className="text-xl font-bold text-slate-900 dark:text-slate-100">
             {region.icon} {region.label}
           </h2>
-          <p className="mt-1 text-sm text-slate-600">Select everything that applies.</p>
+          <p className="mt-1 text-sm text-slate-600 dark:text-slate-300">Select everything that applies.</p>
         </div>
-        <button onClick={onBack} className="min-h-11 rounded-xl px-3 text-sm font-medium text-blue-700 active:bg-blue-50">
+        <button onClick={onBack} className="min-h-11 rounded-xl px-3 text-sm font-medium text-blue-700 active:bg-blue-50 dark:text-blue-400 dark:active:bg-blue-950/40">
           ← Back
         </button>
       </header>
@@ -82,7 +82,7 @@ export default function SymptomPicker({ region, selected, severity, onSeverityCh
         onChange={(e) => setQuery(e.target.value)}
         placeholder="Search all symptoms…"
         aria-label="Search all symptoms"
-        className="w-full min-h-12 rounded-2xl border-0 bg-white px-4 py-3 text-base shadow-sm ring-1 ring-slate-200 placeholder:text-slate-400 focus:ring-2 focus:ring-blue-500 focus:outline-none"
+        className="w-full min-h-12 rounded-2xl border-0 bg-white px-4 py-3 text-base shadow-sm ring-1 ring-slate-200 placeholder:text-slate-400 focus:ring-2 focus:ring-blue-500 focus:outline-none dark:bg-slate-800 dark:text-slate-100 dark:ring-slate-700 dark:placeholder:text-slate-500"
       />
 
       <div className="flex flex-wrap gap-2" role="group" aria-label="Symptoms">
@@ -95,12 +95,12 @@ export default function SymptomPicker({ region, selected, severity, onSeverityCh
                 aria-pressed={isOn}
                 className={`min-h-11 rounded-full px-4 py-2 text-sm font-medium transition ring-1 ${
                   isOn
-                    ? 'bg-blue-600 text-white ring-blue-600'
-                    : 'bg-white text-slate-700 ring-slate-200 active:bg-blue-50'
+                    ? 'bg-blue-600 text-white ring-blue-600 dark:bg-blue-500 dark:ring-blue-500'
+                    : 'bg-white text-slate-700 ring-slate-200 active:bg-blue-50 dark:bg-slate-800 dark:text-slate-200 dark:ring-slate-700 dark:active:bg-blue-950/40'
                 }`}
               >
                 {s.label}
-                {q && <span className={`ml-1.5 text-xs ${isOn ? 'text-blue-100' : 'text-slate-400'}`}>· {s.regionLabel}</span>}
+                {q && <span className={`ml-1.5 text-xs ${isOn ? 'text-blue-100' : 'text-slate-400 dark:text-slate-500'}`}>· {s.regionLabel}</span>}
               </button>
               {isOn && (
                 <SeverityScale
@@ -113,7 +113,7 @@ export default function SymptomPicker({ region, selected, severity, onSeverityCh
           )
         })}
         {visible.length === 0 && (
-          <p className="py-4 text-sm text-slate-500">No symptoms match "{query}".</p>
+          <p className="py-4 text-sm text-slate-500 dark:text-slate-400">No symptoms match "{query}".</p>
         )}
       </div>
 
@@ -121,7 +121,7 @@ export default function SymptomPicker({ region, selected, severity, onSeverityCh
         <button
           onClick={onContinue}
           disabled={selected.size === 0}
-          className="w-full min-h-14 rounded-2xl bg-blue-600 px-4 py-4 text-lg font-semibold text-white shadow-md transition active:bg-blue-700 disabled:bg-slate-300"
+          className="w-full min-h-14 rounded-2xl bg-blue-600 px-4 py-4 text-lg font-semibold text-white shadow-md transition active:bg-blue-700 disabled:bg-slate-300 dark:bg-blue-500 dark:active:bg-blue-600 dark:disabled:bg-slate-700 dark:disabled:text-slate-500"
         >
           Continue ({selected.size} selected)
         </button>

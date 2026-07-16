@@ -26,23 +26,25 @@ export default function FollowUpForm({ onBack, onSubmit }) {
 
   const pill = (active) =>
     `min-h-12 rounded-2xl px-4 py-3 text-sm font-medium transition ring-1 ${
-      active ? 'bg-blue-600 text-white ring-blue-600' : 'bg-white text-slate-700 ring-slate-200 active:bg-blue-50'
+      active
+        ? 'bg-blue-600 text-white ring-blue-600 dark:bg-blue-500 dark:ring-blue-500'
+        : 'bg-white text-slate-700 ring-slate-200 active:bg-blue-50 dark:bg-slate-800 dark:text-slate-200 dark:ring-slate-700 dark:active:bg-blue-950/40'
     }`
 
   return (
     <div className="space-y-5">
       <header className="flex items-start justify-between gap-2">
         <div>
-          <h2 className="text-xl font-bold text-slate-900">A few more questions</h2>
-          <p className="mt-1 text-sm text-slate-600">These help judge how urgent things are.</p>
+          <h2 className="text-xl font-bold text-slate-900 dark:text-slate-100">A few more questions</h2>
+          <p className="mt-1 text-sm text-slate-600 dark:text-slate-300">These help judge how urgent things are.</p>
         </div>
-        <button onClick={onBack} className="min-h-11 rounded-xl px-3 text-sm font-medium text-blue-700 active:bg-blue-50">
+        <button onClick={onBack} className="min-h-11 rounded-xl px-3 text-sm font-medium text-blue-700 active:bg-blue-50 dark:text-blue-400 dark:active:bg-blue-950/40">
           ← Back
         </button>
       </header>
 
       <fieldset>
-        <legend className="mb-2 text-sm font-semibold text-slate-800">How long have you had these symptoms?</legend>
+        <legend className="mb-2 text-sm font-semibold text-slate-800 dark:text-slate-200">How long have you had these symptoms?</legend>
         <div className="flex flex-wrap gap-2">
           {DURATION_OPTIONS.map((opt) => (
             <button key={opt.label} onClick={() => setDurationDays(opt.days)} aria-pressed={durationDays === opt.days} className={pill(durationDays === opt.days)}>
@@ -53,8 +55,8 @@ export default function FollowUpForm({ onBack, onSubmit }) {
       </fieldset>
 
       <fieldset>
-        <legend className="mb-2 text-sm font-semibold text-slate-800">
-          How severe does it feel? <span className="font-bold text-blue-700">{severity}/10</span>
+        <legend className="mb-2 text-sm font-semibold text-slate-800 dark:text-slate-200">
+          How severe does it feel? <span className="font-bold text-blue-700 dark:text-blue-400">{severity}/10</span>
         </legend>
         <input
           type="range"
@@ -65,14 +67,14 @@ export default function FollowUpForm({ onBack, onSubmit }) {
           aria-label="Severity from 1 to 10"
           className="w-full"
         />
-        <div className="flex justify-between text-xs text-slate-500">
+        <div className="flex justify-between text-xs text-slate-500 dark:text-slate-400">
           <span>Barely notice it</span>
           <span>Worst imaginable</span>
         </div>
       </fieldset>
 
       <fieldset>
-        <legend className="mb-2 text-sm font-semibold text-slate-800">Your age</legend>
+        <legend className="mb-2 text-sm font-semibold text-slate-800 dark:text-slate-200">Your age</legend>
         <input
           type="number"
           inputMode="numeric"
@@ -81,12 +83,12 @@ export default function FollowUpForm({ onBack, onSubmit }) {
           value={age}
           onChange={(e) => setAge(e.target.value)}
           placeholder="e.g. 20"
-          className="w-full min-h-12 rounded-2xl border-0 bg-white px-4 py-3 text-base shadow-sm ring-1 ring-slate-200 focus:ring-2 focus:ring-blue-500 focus:outline-none"
+          className="w-full min-h-12 rounded-2xl border-0 bg-white px-4 py-3 text-base shadow-sm ring-1 ring-slate-200 focus:ring-2 focus:ring-blue-500 focus:outline-none dark:bg-slate-800 dark:text-slate-100 dark:ring-slate-700 dark:placeholder:text-slate-500"
         />
       </fieldset>
 
       <fieldset>
-        <legend className="mb-2 text-sm font-semibold text-slate-800">Do you have a fever?</legend>
+        <legend className="mb-2 text-sm font-semibold text-slate-800 dark:text-slate-200">Do you have a fever?</legend>
         <div className="flex flex-wrap gap-2">
           {FEVER_OPTIONS.map((opt) => (
             <button key={opt.value} onClick={() => setFever(opt.value)} aria-pressed={fever === opt.value} className={pill(fever === opt.value)}>
@@ -97,7 +99,7 @@ export default function FollowUpForm({ onBack, onSubmit }) {
       </fieldset>
 
       <fieldset>
-        <legend className="mb-2 text-sm font-semibold text-slate-800">Any recent injury (fall, hit, twist)?</legend>
+        <legend className="mb-2 text-sm font-semibold text-slate-800 dark:text-slate-200">Any recent injury (fall, hit, twist)?</legend>
         <div className="flex flex-wrap gap-2">
           <button onClick={() => setRecentInjury(true)} aria-pressed={recentInjury === true} className={pill(recentInjury === true)}>Yes</button>
           <button onClick={() => setRecentInjury(false)} aria-pressed={recentInjury === false} className={pill(recentInjury === false)}>No</button>
@@ -107,7 +109,7 @@ export default function FollowUpForm({ onBack, onSubmit }) {
       <button
         onClick={() => onSubmit({ durationDays, severity, age: Number(age), fever, recentInjury })}
         disabled={!complete}
-        className="w-full min-h-14 rounded-2xl bg-blue-600 px-4 py-4 text-lg font-semibold text-white shadow-md transition active:bg-blue-700 disabled:bg-slate-300"
+        className="w-full min-h-14 rounded-2xl bg-blue-600 px-4 py-4 text-lg font-semibold text-white shadow-md transition active:bg-blue-700 disabled:bg-slate-300 dark:bg-blue-500 dark:active:bg-blue-600 dark:disabled:bg-slate-700 dark:disabled:text-slate-500"
       >
         See results
       </button>

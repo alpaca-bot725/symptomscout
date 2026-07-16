@@ -1,5 +1,10 @@
 @import "tailwindcss";
 
+/* Dark mode via a manual `.dark` class on <html> (Tailwind 4 custom variant),
+ * so a toggle button can override the OS preference. The class itself is set
+ * before paint by the inline script in index.html to avoid a light-flash. */
+@custom-variant dark (&:where(.dark, .dark *));
+
 @theme {
   --font-sans: "Segoe UI", system-ui, -apple-system, "Helvetica Neue", Arial, sans-serif;
 }
@@ -8,8 +13,42 @@ html {
   -webkit-tap-highlight-color: transparent;
 }
 
+/* --- Transitions (CSS keyframes; each screen wrapper is keyed by step so it
+ * remounts and re-runs its entrance). Directional: forward steps slide in from
+ * the right, back steps from the left, tab switches cross-fade. Modal-ish
+ * elements pop in with a subtle scale. Result cards stagger via an inline
+ * animation-delay. All disabled under prefers-reduced-motion. */
+@keyframes slide-from-right { from { opacity: 0; transform: translateX(28px); } to { opacity: 1; transform: translateX(0); } }
+@keyframes slide-from-left  { from { opacity: 0; transform: translateX(-28px); } to { opacity: 1; transform: translateX(0); } }
+@keyframes fade-in { from { opacity: 0; } to { opacity: 1; } }
+@keyframes pop-in { from { opacity: 0; transform: scale(0.96); } to { opacity: 1; transform: scale(1); } }
+@keyframes card-in { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: translateY(0); } }
+
+.screen-forward { animation: slide-from-right 0.24s ease-in-out both; }
+.screen-back    { animation: slide-from-left 0.24s ease-in-out both; }
+.screen-fade    { animation: fade-in 0.24s ease-in-out both; }
+.pop-in         { animation: pop-in 0.22s ease-out both; }
+.card-in        { animation: card-in 0.3s ease-out both; }
+
+@media (prefers-reduced-motion: reduce) {
+  .screen-forward, .screen-back, .screen-fade, .pop-in, .card-in { animation: none; }
+}
+
+/* Idle "heartbeat" on the logo mark — a subtle double-beat then a long rest,
+ * fitting the health theme. Kept gentle so it reads as premium, not busy. */
+@keyframes logo-beat {
+  0%, 32%, 100% { transform: scale(1); }
+  8%  { transform: scale(1.06); }
+  16% { transform: scale(1); }
+  24% { transform: scale(1.04); }
+}
+.logo-beat { animation: logo-beat 2.6s ease-in-out infinite; }
+@media (prefers-reduced-motion: reduce) {
+  .logo-beat { animation: none; }
+}
+
 body {
-  @apply bg-sky-50 text-slate-800 antialiased;
+  @apply bg-sky-50 text-slate-800 antialiased dark:bg-slate-900 dark:text-slate-100;
 }
 
 /*
@@ -20,16 +59,16 @@ input[type="range"] {
   @apply h-11 w-full cursor-pointer appearance-none bg-transparent;
 }
 input[type="range"]::-webkit-slider-runnable-track {
-  @apply h-2 rounded-full bg-sky-200;
+  @apply h-2 rounded-full bg-sky-200 dark:bg-slate-700;
 }
 input[type="range"]::-webkit-slider-thumb {
   -webkit-appearance: none;
-  @apply size-7 rounded-full bg-blue-600 shadow-md;
+  @apply size-7 rounded-full bg-blue-600 shadow-md dark:bg-blue-500;
   margin-top: -10px; /* center the 28px thumb on the 8px track */
 }
 input[type="range"]::-moz-range-track {
-  @apply h-2 rounded-full bg-sky-200;
+  @apply h-2 rounded-full bg-sky-200 dark:bg-slate-700;
 }
 input[type="range"]::-moz-range-thumb {
-  @apply size-7 rounded-full border-0 bg-blue-600 shadow-md;
+  @apply size-7 rounded-full border-0 bg-blue-600 shadow-md dark:bg-blue-500;
 }

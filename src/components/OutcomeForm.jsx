@@ -39,13 +39,15 @@ export default function OutcomeForm({ initial, onSave, onCancel }) {
 
   const pill = (active) =>
     `min-h-11 rounded-xl px-3 py-2 text-sm font-medium transition ring-1 ${
-      active ? 'bg-blue-600 text-white ring-blue-600' : 'bg-white text-slate-700 ring-slate-200 active:bg-blue-50'
+      active
+        ? 'bg-blue-600 text-white ring-blue-600 dark:bg-blue-500 dark:ring-blue-500'
+        : 'bg-white text-slate-700 ring-slate-200 active:bg-blue-50 dark:bg-slate-800 dark:text-slate-200 dark:ring-slate-700 dark:active:bg-blue-950/40'
     }`
 
   return (
-    <div className="mt-3 space-y-3 rounded-xl bg-sky-50 p-3 ring-1 ring-sky-200">
+    <div className="pop-in mt-3 space-y-3 rounded-xl bg-sky-50 p-3 ring-1 ring-sky-200 dark:bg-slate-900/50 dark:ring-slate-700">
       <fieldset>
-        <legend className="mb-2 text-sm font-semibold text-slate-800">Did you end up seeing a doctor?</legend>
+        <legend className="mb-2 text-sm font-semibold text-slate-800 dark:text-slate-200">Did you end up seeing a doctor?</legend>
         <div className="flex flex-wrap gap-2">
           {[
             { value: 'yes', label: 'Yes' },
@@ -61,12 +63,12 @@ export default function OutcomeForm({ initial, onSave, onCancel }) {
 
       {sawDoctor === 'yes' && (
         <fieldset>
-          <legend className="mb-2 text-sm font-semibold text-slate-800">What was the diagnosis?</legend>
+          <legend className="mb-2 text-sm font-semibold text-slate-800 dark:text-slate-200">What was the diagnosis?</legend>
           <select
             value={choice}
             onChange={(e) => setChoice(e.target.value)}
             aria-label="Diagnosis"
-            className="w-full min-h-11 rounded-xl border-0 bg-white px-3 py-2 text-sm shadow-sm ring-1 ring-slate-200 focus:ring-2 focus:ring-blue-500 focus:outline-none"
+            className="w-full min-h-11 rounded-xl border-0 bg-white px-3 py-2 text-sm shadow-sm ring-1 ring-slate-200 focus:ring-2 focus:ring-blue-500 focus:outline-none dark:bg-slate-800 dark:text-slate-100 dark:ring-slate-700"
           >
             <option value="" disabled>Choose…</option>
             {conditions.map((c) => (
@@ -82,13 +84,13 @@ export default function OutcomeForm({ initial, onSave, onCancel }) {
               onChange={(e) => setOtherText(e.target.value)}
               placeholder="What did the doctor say?"
               aria-label="Diagnosis (free text)"
-              className="mt-2 w-full min-h-11 rounded-xl border-0 bg-white px-3 py-2 text-sm shadow-sm ring-1 ring-slate-200 placeholder:text-slate-400 focus:ring-2 focus:ring-blue-500 focus:outline-none"
+              className="mt-2 w-full min-h-11 rounded-xl border-0 bg-white px-3 py-2 text-sm shadow-sm ring-1 ring-slate-200 placeholder:text-slate-400 focus:ring-2 focus:ring-blue-500 focus:outline-none dark:bg-slate-800 dark:text-slate-100 dark:ring-slate-700 dark:placeholder:text-slate-500"
             />
           )}
         </fieldset>
       )}
 
-      <p className="text-xs leading-relaxed text-slate-500">
+      <p className="text-xs leading-relaxed text-slate-500 dark:text-slate-400">
         This helps improve the tool. Never share anything you're not comfortable with.
       </p>
 
@@ -96,11 +98,11 @@ export default function OutcomeForm({ initial, onSave, onCancel }) {
         <button
           onClick={save}
           disabled={!canSave}
-          className="min-h-11 flex-1 rounded-xl bg-blue-600 px-3 py-2 text-sm font-semibold text-white active:bg-blue-700 disabled:bg-slate-300"
+          className="min-h-11 flex-1 rounded-xl bg-blue-600 px-3 py-2 text-sm font-semibold text-white active:bg-blue-700 disabled:bg-slate-300 dark:bg-blue-500 dark:active:bg-blue-600 dark:disabled:bg-slate-700 dark:disabled:text-slate-500"
         >
           Save outcome
         </button>
-        <button onClick={onCancel} className="min-h-11 rounded-xl px-3 py-2 text-sm font-medium text-slate-600 ring-1 ring-slate-200 active:bg-slate-50">
+        <button onClick={onCancel} className="min-h-11 rounded-xl px-3 py-2 text-sm font-medium text-slate-600 ring-1 ring-slate-200 active:bg-slate-50 dark:text-slate-300 dark:ring-slate-700 dark:active:bg-slate-700">
           Cancel
         </button>
       </div>

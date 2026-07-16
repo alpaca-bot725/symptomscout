@@ -10,8 +10,8 @@ export default function RedFlagCheck({ selected, onToggle, onContinue, onEmergen
   return (
     <div className="space-y-4">
       <header>
-        <h2 className="text-xl font-bold text-slate-900">First, a quick safety check</h2>
-        <p className="mt-1 text-sm text-slate-600">
+        <h2 className="text-xl font-bold text-slate-900 dark:text-slate-100">First, a quick safety check</h2>
+        <p className="mt-1 text-sm text-slate-600 dark:text-slate-300">
           Are you experiencing any of these right now?
         </p>
       </header>
@@ -26,14 +26,14 @@ export default function RedFlagCheck({ selected, onToggle, onContinue, onEmergen
               aria-pressed={isOn}
               className={`flex w-full min-h-14 items-center gap-3 rounded-2xl px-4 py-3 text-left text-sm font-medium transition ring-1 ${
                 isOn
-                  ? 'bg-red-600 text-white ring-red-600'
-                  : 'bg-white text-slate-800 ring-slate-200 active:bg-red-50'
+                  ? 'bg-red-600 text-white ring-red-600 dark:bg-red-500 dark:ring-red-500'
+                  : 'bg-white text-slate-800 ring-slate-200 active:bg-red-50 dark:bg-slate-800 dark:text-slate-100 dark:ring-slate-700 dark:active:bg-red-950/40'
               }`}
             >
               <span
                 aria-hidden="true"
                 className={`grid size-6 shrink-0 place-items-center rounded-full border-2 text-xs ${
-                  isOn ? 'border-white bg-white text-red-600' : 'border-slate-300'
+                  isOn ? 'border-white bg-white text-red-600' : 'border-slate-300 dark:border-slate-600'
                 }`}
               >
                 {isOn ? '✓' : ''}
@@ -47,14 +47,14 @@ export default function RedFlagCheck({ selected, onToggle, onContinue, onEmergen
       {anySelected ? (
         <button
           onClick={onEmergency}
-          className="w-full min-h-14 rounded-2xl bg-red-600 px-4 py-4 text-lg font-bold text-white shadow-md active:bg-red-700"
+          className="w-full min-h-14 rounded-2xl bg-red-600 px-4 py-4 text-lg font-bold text-white shadow-md active:bg-red-700 dark:bg-red-500 dark:active:bg-red-600"
         >
           Show emergency guidance
         </button>
       ) : (
         <button
           onClick={onContinue}
-          className="w-full min-h-14 rounded-2xl bg-blue-600 px-4 py-4 text-lg font-semibold text-white shadow-md active:bg-blue-700"
+          className="w-full min-h-14 rounded-2xl bg-blue-600 px-4 py-4 text-lg font-semibold text-white shadow-md active:bg-blue-700 dark:bg-blue-500 dark:active:bg-blue-600"
         >
           None of these — continue
         </button>

@@ -9,6 +9,19 @@
     <link rel="apple-touch-icon" href="/icons/icon-192.png" />
     <link rel="manifest" href="/manifest.webmanifest" />
     <title>SymptomScout</title>
+    <script>
+      // Set the theme before first paint to avoid a flash of the wrong theme.
+      // Stored choice wins; otherwise fall back to the OS preference.
+      (function () {
+        try {
+          var stored = localStorage.getItem('symptomscout_theme')
+          var dark = stored ? stored === 'dark' : window.matchMedia('(prefers-color-scheme: dark)').matches
+          document.documentElement.classList.toggle('dark', dark)
+          var meta = document.querySelector('meta[name="theme-color"]')
+          if (meta) meta.setAttribute('content', dark ? '#0f172a' : '#f0f7ff')
+        } catch (e) {}
+      })()
+    </script>
   </head>
   <body>
     <div id="root"></div>
