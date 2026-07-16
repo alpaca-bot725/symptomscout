@@ -111,7 +111,7 @@
       "id": "abdomen",
       "label": "Stomach & Digestion",
       "icon": "🫃",
-      "symptoms": ["nausea", "vomiting", "diarrhea", "stomach_cramps", "abdominal_pain_general", "pain_migrating_lower_right", "pain_worse_with_movement", "loss_of_appetite", "sour_taste", "worse_lying_down", "regurgitation", "onset_hours_after_eating", "infrequent_stools", "hard_stools", "straining", "bloating", "feeling_incomplete", "crampy_pain_relieved_by_bm", "alternating_bowel_habits", "mucus_in_stool", "blood_in_stool_vomit", "lower_abdominal_pressure"]
+      "symptoms": ["nausea", "vomiting", "diarrhea", "stomach_cramps", "abdominal_pain_general", "pain_migrating_lower_right", "pain_worse_with_movement", "loss_of_appetite", "sour_taste", "worse_lying_down", "regurgitation", "onset_hours_after_eating", "infrequent_stools", "hard_stools", "straining", "bloating", "feeling_incomplete", "crampy_pain_relieved_by_bm", "alternating_bowel_habits", "mucus_in_stool", "lower_abdominal_pressure"]
     },
     {
       "id": "urinary",
@@ -141,7 +141,7 @@
       "id": "general",
       "label": "General / Whole Body",
       "icon": "🌡️",
-      "symptoms": ["fever", "low_fever", "no_fever", "chills", "fatigue", "fatigue_sudden", "severe_fatigue_weeks", "gradual_onset", "extreme_thirst", "dry_mouth", "heavy_sweating_heat", "weakness_after_heat", "history_asthma", "unintended_weight_loss", "pale_skin", "fatigue_on_exertion", "cold_hands_feet", "brittle_nails", "cold_intolerance", "unexplained_weight_gain", "dry_skin_hair", "slowed_thinking"]
+      "symptoms": ["fever", "low_fever", "no_fever", "chills", "fatigue", "fatigue_sudden", "severe_fatigue_weeks", "gradual_onset", "extreme_thirst", "dry_mouth", "heavy_sweating_heat", "weakness_after_heat", "history_asthma", "pale_skin", "fatigue_on_exertion", "cold_hands_feet", "brittle_nails", "cold_intolerance", "unexplained_weight_gain", "dry_skin_hair", "slowed_thinking"]
     }
   ],
 
