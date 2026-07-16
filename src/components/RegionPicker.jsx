@@ -15,7 +15,7 @@ export default function RegionPicker({ onSelect }) {
           <button
             key={region.id}
             onClick={() => onSelect(region)}
-            className="flex min-h-24 flex-col items-center justify-center gap-1.5 rounded-2xl bg-white p-3 text-center shadow-sm ring-1 ring-slate-200 transition active:bg-blue-50 active:ring-blue-300 dark:bg-slate-800 dark:ring-slate-700 dark:active:bg-blue-950/40 dark:active:ring-blue-800"
+            className="frosted-panel flex min-h-24 flex-col items-center justify-center gap-1.5 rounded-2xl p-3 text-center shadow-sm ring-1 ring-slate-200 transition active:bg-blue-50 active:ring-blue-300 dark:ring-slate-700 dark:active:bg-blue-950/40 dark:active:ring-blue-800"
           >
             <span className="text-3xl" aria-hidden="true">{region.icon}</span>
             <span className="text-sm font-semibold leading-tight text-slate-800 dark:text-slate-100">{region.label}</span>

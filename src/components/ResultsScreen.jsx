@@ -51,7 +51,7 @@ export default function ResultsScreen({ triage, onStartOver }) {
   if (results.length === 0) {
     return (
       <div className="space-y-4">
-        <div className="rounded-2xl border-2 border-slate-300 bg-white p-5 text-center text-slate-800 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-100">
+        <div className="frosted-panel rounded-2xl border-2 border-slate-300 p-5 text-center text-slate-800 dark:border-slate-700 dark:text-slate-100">
           <div className="text-3xl" aria-hidden="true">🤔</div>
           <h2 className="mt-1 text-xl font-bold">No clear match</h2>
           <p className="mt-1 text-sm text-slate-600 dark:text-slate-300">
@@ -89,7 +89,7 @@ export default function ResultsScreen({ triage, onStartOver }) {
             key={r.condition.id}
             open={index === 0}
             style={{ animationDelay: `${index * 60}ms` }}
-            className="card-in group rounded-2xl bg-white shadow-sm ring-1 ring-slate-200 dark:bg-slate-800 dark:ring-slate-700"
+            className="frosted-panel card-in group rounded-2xl shadow-sm ring-1 ring-slate-200 dark:ring-slate-700"
           >
             <summary className="flex min-h-14 cursor-pointer list-none items-center gap-3 p-4 [&::-webkit-details-marker]:hidden">
               <div className="min-w-0 flex-1">

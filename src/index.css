@@ -47,17 +47,38 @@ html {
   .logo-beat { animation: none; }
 }
 
-/* Home-screen side decoration: a slow vertical drift, exactly one repeating
- * period (100px) per loop. Because the underlying pattern is periodic, the
- * frame at translateY(100px) is pixel-identical to translateY(0), so the
- * loop has no visible seam or reset jump. GPU-cheap (transform only). */
-@keyframes helix-drift {
+/* Background DNA helix (HelixDecoration.jsx): a slow vertical drift over
+ * exactly one repeating period (one 360° turn = TURN_HEIGHT px in the
+ * component). Because the geometry is periodic, translateY(TURN_HEIGHT) is
+ * pixel-identical to translateY(0), so the loop has no visible seam. Only
+ * `transform` is animated (GPU-cheap); bokeh only animates `opacity`.
+ * `.anim-paused` is toggled by the component via the Page Visibility API as
+ * an extra guardrail on top of what browsers already throttle automatically
+ * for backgrounded tabs. */
+@keyframes spiral-drift {
   from { transform: translateY(0); }
-  to   { transform: translateY(100px); }
+  to   { transform: translateY(140px); }
 }
-.helix-drift { animation: helix-drift 16s linear infinite; }
+@keyframes bokeh-pulse {
+  0%, 100% { opacity: 0.15; }
+  50%      { opacity: 0.45; }
+}
+.spiral-drift  { animation: spiral-drift 18s linear infinite; }
+.bokeh-speck   { animation: bokeh-pulse 7s ease-in-out infinite; }
+.anim-paused .spiral-drift,
+.anim-paused .bokeh-speck {
+  animation-play-state: paused;
+}
 @media (prefers-reduced-motion: reduce) {
-  .helix-drift { animation: none; }
+  .spiral-drift, .bokeh-speck { animation: none; }
+}
+
+/* Frosted-glass panel: lets the background helix show through while keeping
+ * text crisp. Opacity is intentionally on the higher/safer side (readability
+ * over effect) — see index.css comment history / SYMPTOMSCOUT-CONTEXT.md for
+ * which panels use this vs. stay solid (safety-critical surfaces never do). */
+.frosted-panel {
+  @apply bg-white/80 backdrop-blur-md dark:bg-slate-800/75;
 }
 
 body {

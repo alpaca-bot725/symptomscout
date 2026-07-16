@@ -25,7 +25,7 @@ export default function HistoryScreen() {
 
   if (history.length === 0) {
     return (
-      <div className="rounded-2xl bg-white p-6 text-center shadow-sm ring-1 ring-slate-200 dark:bg-slate-800 dark:ring-slate-700">
+      <div className="frosted-panel rounded-2xl p-6 text-center shadow-sm ring-1 ring-slate-200 dark:ring-slate-700">
         <div className="text-3xl" aria-hidden="true">📋</div>
         <h2 className="mt-2 font-bold text-slate-900 dark:text-slate-100">No episodes yet</h2>
         <p className="mt-1 text-sm text-slate-600 dark:text-slate-300">
@@ -55,7 +55,7 @@ export default function HistoryScreen() {
       </div>
 
       {history.map((ep) => (
-        <div key={ep.id} className="rounded-2xl bg-white p-4 shadow-sm ring-1 ring-slate-200 dark:bg-slate-800 dark:ring-slate-700">
+        <div key={ep.id} className="frosted-panel rounded-2xl p-4 shadow-sm ring-1 ring-slate-200 dark:ring-slate-700">
           <div className="flex items-start justify-between gap-2">
             <div>
               <p className="text-xs font-medium text-slate-500 dark:text-slate-400">

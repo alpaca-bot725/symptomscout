@@ -134,7 +134,11 @@ export default function App() {
 
   return (
     <>
-      {tab === 'check' && step === 'home' && <HelixDecoration />}
+      {/* Rendered app-wide now (was home-only pre-v1.7), so it's visible
+          behind the frosted panels everywhere — except the emergency step,
+          which stays fully solid/opaque with nothing behind it (safety
+          screens are not the place for any style risk, decorative or not). */}
+      {step !== 'emergency' && <HelixDecoration />}
       <div className="mx-auto flex min-h-dvh max-w-md flex-col px-4 pt-4 pb-24">
       <header className="mb-4 flex items-center gap-2">
         <span className="logo-beat grid size-10 place-items-center rounded-2xl bg-blue-600 text-xl text-white shadow-sm dark:bg-blue-500" aria-hidden="true">＋</span>
@@ -153,7 +157,7 @@ export default function App() {
               <>
                 {step === 'home' && (
                   <div className="space-y-4">
-                    <div className="rounded-2xl bg-white p-6 text-center shadow-sm ring-1 ring-slate-200 dark:bg-slate-800 dark:ring-slate-700">
+                    <div className="frosted-panel rounded-2xl p-6 text-center shadow-sm ring-1 ring-slate-200 dark:ring-slate-700">
                       <div className="text-4xl" aria-hidden="true">🔎</div>
                       <h2 className="mt-2 text-2xl font-bold text-slate-900 dark:text-slate-100">How are you feeling?</h2>
                       <p className="mt-2 text-sm leading-relaxed text-slate-600 dark:text-slate-300">
@@ -167,7 +171,7 @@ export default function App() {
                         Start symptom check
                       </button>
                     </div>
-                    <div className="rounded-2xl bg-white p-4 text-sm text-slate-600 shadow-sm ring-1 ring-slate-200 dark:bg-slate-800 dark:text-slate-300 dark:ring-slate-700">
+                    <div className="frosted-panel rounded-2xl p-4 text-sm text-slate-600 shadow-sm ring-1 ring-slate-200 dark:text-slate-300 dark:ring-slate-700">
                       <h3 className="font-semibold text-slate-800 dark:text-slate-100">What this app does</h3>
                       <ul className="mt-2 space-y-1.5">
                         <li>✓ Screens for emergency warning signs first</li>

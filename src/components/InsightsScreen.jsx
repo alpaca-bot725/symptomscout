@@ -3,6 +3,7 @@ import { loadHistory } from '../lib/history'
 import { analyze, MIN_SAMPLE, conditionName } from '../lib/insights'
 import DisclaimerBanner from './DisclaimerBanner'
 import ThemeToggle from './ThemeToggle'
+import HelixDecoration from './HelixDecoration'
 
 const SUGGESTION_STYLES = {
   confirm: 'bg-emerald-50 ring-emerald-200 text-emerald-900 dark:bg-emerald-500/10 dark:ring-emerald-800/60 dark:text-emerald-200',
@@ -20,7 +21,9 @@ export default function InsightsScreen() {
   const [report] = useState(() => analyze(loadHistory()))
 
   return (
-    <div className="mx-auto min-h-dvh max-w-2xl space-y-5 px-4 py-6">
+    <>
+      <HelixDecoration />
+      <div className="mx-auto min-h-dvh max-w-2xl space-y-5 px-4 py-6">
       <header>
         <div className="flex items-start justify-between gap-2">
           <h1 className="text-2xl font-extrabold tracking-tight text-slate-900 dark:text-slate-100">Insights</h1>
@@ -39,7 +42,7 @@ export default function InsightsScreen() {
       </header>
 
       {report.confirmedCount === 0 ? (
-        <div className="rounded-2xl bg-white p-6 text-center shadow-sm ring-1 ring-slate-200 dark:bg-slate-800 dark:ring-slate-700">
+        <div className="frosted-panel rounded-2xl p-6 text-center shadow-sm ring-1 ring-slate-200 dark:ring-slate-700">
           <p className="font-semibold text-slate-800 dark:text-slate-200">No confirmed outcomes yet</p>
           <p className="mt-1 text-sm text-slate-600 dark:text-slate-300">
             Insights appear once episodes in the History tab have outcomes with a
@@ -51,7 +54,7 @@ export default function InsightsScreen() {
           {/* Per-condition scoreboard */}
           <section>
             <h2 className="mb-2 text-lg font-bold text-slate-900 dark:text-slate-100">Per-condition accuracy</h2>
-            <div className="overflow-x-auto rounded-2xl bg-white shadow-sm ring-1 ring-slate-200 dark:bg-slate-800 dark:ring-slate-700">
+            <div className="frosted-panel overflow-x-auto rounded-2xl shadow-sm ring-1 ring-slate-200 dark:ring-slate-700">
               <table className="w-full text-left text-sm">
                 <thead className="border-b border-slate-100 text-xs text-slate-500 dark:border-slate-700 dark:text-slate-400">
                   <tr>
@@ -95,7 +98,7 @@ export default function InsightsScreen() {
               <h2 className="mb-2 text-lg font-bold text-slate-900 dark:text-slate-100">Confusion list</h2>
               <div className="space-y-2">
                 {report.confusion.map((c) => (
-                  <div key={`${c.rankedId}-${c.actualId}`} className="rounded-2xl bg-white p-3 text-sm shadow-sm ring-1 ring-slate-200 dark:bg-slate-800 dark:text-slate-300 dark:ring-slate-700">
+                  <div key={`${c.rankedId}-${c.actualId}`} className="frosted-panel rounded-2xl p-3 text-sm shadow-sm ring-1 ring-slate-200 dark:text-slate-300 dark:ring-slate-700">
                     Ranked <span className="font-semibold text-slate-900 dark:text-slate-100">{c.rankedName}</span> #1, actual diagnosis was{' '}
                     <span className="font-semibold text-slate-900 dark:text-slate-100">{c.actualName}</span>:{' '}
                     <span className="font-bold text-amber-700 dark:text-amber-400">{c.count}×</span>
@@ -114,7 +117,7 @@ export default function InsightsScreen() {
               </p>
               <div className="space-y-2">
                 {report.misses.map((m) => (
-                  <details key={m.episodeId} className="group rounded-2xl bg-white shadow-sm ring-1 ring-slate-200 dark:bg-slate-800 dark:ring-slate-700">
+                  <details key={m.episodeId} className="frosted-panel group rounded-2xl shadow-sm ring-1 ring-slate-200 dark:ring-slate-700">
                     <summary className="flex min-h-12 cursor-pointer list-none items-center justify-between gap-2 p-3 text-sm [&::-webkit-details-marker]:hidden">
                       <span>
                         <span className="font-semibold text-slate-900 dark:text-slate-100">{m.actualName}</span>{' '}
@@ -176,7 +179,7 @@ export default function InsightsScreen() {
         <h2 className="mb-2 text-lg font-bold text-slate-900 dark:text-slate-100">Knowledge base changelog</h2>
         <div className="space-y-2">
           {report.changelog.map((entry) => (
-            <div key={entry.version} className="rounded-2xl bg-white p-3 text-sm shadow-sm ring-1 ring-slate-200 dark:bg-slate-800 dark:ring-slate-700">
+            <div key={entry.version} className="frosted-panel rounded-2xl p-3 text-sm shadow-sm ring-1 ring-slate-200 dark:ring-slate-700">
               <p className="font-semibold text-slate-900 dark:text-slate-100">v{entry.version} <span className="ml-1 text-xs font-normal text-slate-500 dark:text-slate-400">{entry.date}</span></p>
               <p className="mt-0.5 text-slate-700 dark:text-slate-300">{entry.change}</p>
               <p className="mt-0.5 text-xs text-slate-500 dark:text-slate-400">Evidence: {entry.evidence}</p>
@@ -189,6 +192,7 @@ export default function InsightsScreen() {
       <p className="pb-4 text-center text-[10px] text-slate-400 dark:text-slate-500">
         All feedback data is stored in this browser's localStorage only — it never leaves the device.
       </p>
-    </div>
+      </div>
+    </>
   )
 }
