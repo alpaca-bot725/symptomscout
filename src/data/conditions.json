@@ -1,6 +1,12 @@
 {
-  "version": "1.5",
+  "version": "1.6",
   "changelog": [
+    {
+      "version": "1.6",
+      "date": "2026-07-16",
+      "change": "UI/messaging polish release (no scoring or red-flag engine changes): added benign-cause context on the safety screen for chest pain and 'worst headache of life' — a prominent 'call 911 if...' watch-for line always shown first, paired with a smaller reassuring common-cause note after (e.g. chest pain is also commonly heartburn, muscle strain, or anxiety). The data lives in a new triage.js-only lookup (getRedFlagBenignContext), deliberately separate from conditions.json and from checkGlobalRedFlags() — checking either box still unconditionally triggers the emergency screen. Also added subtle animated DNA-helix decorations filling the empty side margins on the home screen at wide (lg+) viewports: fixed + pointer-events-none + behind content, CSS-only drift animation, hidden entirely on mobile, respects prefers-reduced-motion.",
+      "evidence": "Frontend/messaging-only. All 168 engine tests still pass unchanged. Verified live: exactly 2 of 8 red-flag symptoms show the context pair (only chest pain and worst-headache-of-life, as scoped); checking either still hard-overrides to the emergency screen with the context text absent from that screen; the helix renders only on the home screen at >=lg width and is fully absent on mobile and on every other screen/tab."
+    },
     {
       "version": "1.5",
       "date": "2026-07-15",

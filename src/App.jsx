@@ -5,6 +5,7 @@ import kb from './data/conditions.json'
 import InsightsScreen from './components/InsightsScreen'
 import DisclaimerBanner from './components/DisclaimerBanner'
 import ThemeToggle from './components/ThemeToggle'
+import HelixDecoration from './components/HelixDecoration'
 import RedFlagCheck from './components/RedFlagCheck'
 import RegionPicker from './components/RegionPicker'
 import SymptomPicker from './components/SymptomPicker'
@@ -132,7 +133,9 @@ export default function App() {
   }
 
   return (
-    <div className="mx-auto flex min-h-dvh max-w-md flex-col px-4 pt-4 pb-24">
+    <>
+      {tab === 'check' && step === 'home' && <HelixDecoration />}
+      <div className="mx-auto flex min-h-dvh max-w-md flex-col px-4 pt-4 pb-24">
       <header className="mb-4 flex items-center gap-2">
         <span className="logo-beat grid size-10 place-items-center rounded-2xl bg-blue-600 text-xl text-white shadow-sm dark:bg-blue-500" aria-hidden="true">＋</span>
         <div>
@@ -243,6 +246,7 @@ export default function App() {
           ))}
         </div>
       </nav>
-    </div>
+      </div>
+    </>
   )
 }

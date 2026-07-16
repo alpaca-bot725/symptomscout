@@ -129,6 +129,46 @@ export function checkGlobalRedFlags(reportedIds) {
 }
 
 /* ------------------------------------------------------------------ */
+/* Red-flag-screen benign-context messaging (display only)             */
+/* ------------------------------------------------------------------ */
+
+/**
+ * Optional "context" shown on RedFlagCheck ONLY, for a small subset of global
+ * red flags that have a genuinely common non-emergency explanation. This is
+ * pure display data — deliberately kept OUT of conditions.json and separate
+ * from checkGlobalRedFlags()/kb.global_red_flags, so it can never influence
+ * red-flag detection, scoring, or the emergency override. Checking any red
+ * flag box still unconditionally triggers the emergency screen regardless of
+ * what's shown here.
+ *
+ * Each entry pairs two lines, always shown together, in this fixed order:
+ *   watchFor      — restates the actual "this is why it's serious" criteria.
+ *                    Rendered FIRST and most prominent.
+ *   benignContext — the reassuring common-cause note. Rendered AFTER, smaller.
+ * Symptoms without a genuinely common benign cause (e.g. difficulty
+ * breathing, fainting, seizure) are intentionally absent — they return null.
+ */
+const RED_FLAG_CONTEXT = {
+  chest_pain_pressure: {
+    watchFor:
+      'Call 911 if the pain is crushing or squeezing, spreads to your arm, jaw, or back, or comes with sweating, nausea, or shortness of breath.',
+    benignContext:
+      "Chest pain is also commonly caused by heartburn, muscle strain, or anxiety — but it's always worth ruling out the heart first.",
+  },
+  worst_headache_of_life: {
+    watchFor:
+      'Go to the ER if the headache came on suddenly and is the worst you’ve ever had, especially with a stiff neck, confusion, or vision changes.',
+    benignContext:
+      'Most severe headaches are migraines or tension headaches — but a sudden "thunderclap" headache needs urgent evaluation.',
+  },
+}
+
+/** Benign-context pair for a red-flag symptom id, or null if none exists. */
+export function getRedFlagBenignContext(symptomId) {
+  return RED_FLAG_CONTEXT[symptomId] ?? null
+}
+
+/* ------------------------------------------------------------------ */
 /* Per-symptom severity (urgency messaging only — never scoring)       */
 /* ------------------------------------------------------------------ */
 

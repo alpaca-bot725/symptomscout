@@ -47,6 +47,19 @@ html {
   .logo-beat { animation: none; }
 }
 
+/* Home-screen side decoration: a slow vertical drift, exactly one repeating
+ * period (100px) per loop. Because the underlying pattern is periodic, the
+ * frame at translateY(100px) is pixel-identical to translateY(0), so the
+ * loop has no visible seam or reset jump. GPU-cheap (transform only). */
+@keyframes helix-drift {
+  from { transform: translateY(0); }
+  to   { transform: translateY(100px); }
+}
+.helix-drift { animation: helix-drift 16s linear infinite; }
+@media (prefers-reduced-motion: reduce) {
+  .helix-drift { animation: none; }
+}
+
 body {
   @apply bg-sky-50 text-slate-800 antialiased dark:bg-slate-900 dark:text-slate-100;
 }
